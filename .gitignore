@@ -16,4 +16,6 @@ __pycache__/
 desktop.ini
 *:Zone.Identifier
 
-# Note: db.sqlite3 is intentionally tracked; it ships with the project data.
+# Local database and backups: never commit user data
+db.sqlite3
+*.bak
