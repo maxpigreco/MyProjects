@@ -16,8 +16,12 @@ changelog when work is completed.
 - The default `python` (pyenv 3.15.1) does not have Django installed; always
   use the venv. Recreate it with:
   `/usr/bin/python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt`.
-- No README or CI. `db.sqlite3` ships with existing data (three users, one
-  superuser) and all migrations applied. Do not delete or reset it.
+- Secrets: `DJANGO_SECRET_KEY` is read from `.env`, which is auto-loaded by
+  `settings.py` and gitignored. Copy `.env.example` to create it; never commit
+  `.env`.
+- No README or CI. `db.sqlite3` is local and gitignored (it contains the demo
+  data); a fresh clone must run migrations before use. Do not delete or reset
+  the local DB.
 - Ignore `desktop.ini` and `*:Zone.Identifier` files throughout the tree; they
   are Windows metadata, not source.
 

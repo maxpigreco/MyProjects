@@ -37,7 +37,7 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 
 ---
 
-## 2. Contesto verificato (snapshot 2026-10-29)
+## 2. Contesto verificato (aggiornato 2026-10-30)
 
 | Fatto | Evidenza |
 |---|---|
@@ -48,9 +48,9 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | `Post.views` mai incrementato | `blog/views.py` |
 | 0 test; `check --deploy` con 7 warning | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
-| `db.sqlite3` tracciato in git; `SECRET_KEY` hardcoded | `git ls-files`, `settings.py` |
-| Repo git su `main`, un solo commit `28c2f3f`, nessuna modifica pendente | `git log`, `git status` |
-| Implementazione non iniziata: nessun WP della Fase 1 è completo | verifica 2026-10-29 |
+| `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
+| Repo git su `main`, commit WP1 incluso | `git log` |
+| Implementazione: WP1 completato; WP2–WP7 da fare | verifica 2026-10-30 |
 
 **Comandi base** (con venv attiva):
 
@@ -69,13 +69,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[ ]` | 0/7 WP · 0/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[~]` | 1/7 WP · 5/33 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** pianificazione completata; implementazione non iniziata.
+**Stato attuale:** WP1 completato; si prosegue con WP2 dopo verifica.
 
 ---
 
@@ -97,9 +97,9 @@ python manage.py runserver
 | Gestione post | Solo Django admin. Nessuna UI di authoring. |
 | Scope Fase 1 | Include reset password e persistenza contatti (già previsti qui, non in Fase 2/3). |
 
-**Decisione aperta (non bloccante):** caricamento automatico di `.env`.
-Default implementativo: nessuna dipendenza extra, variabili esportate +
-`.env.example`. Se cambia, aggiornare WP1 prima di eseguirlo.
+**Decisione risolta:** `.env` viene caricato automaticamente da `settings.py`
+con un loader stdlib; nessuna dipendenza aggiuntiva. `.env` resta gitignored e
+`.env.example` documenta la variabile richiesta.
 
 ---
 
@@ -115,7 +115,7 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 - [ ] Contatto salvato nel DB + email in console + honeypot funzionante.
 - [ ] Reset password completo funzionante.
 - [ ] Titoli duplicati non causano 500.
-- [ ] `git ls-files` non include `db.sqlite3` né `.env`.
+- [x] `git ls-files` non include `db.sqlite3` né `.env`.
 - [ ] Un clone pulito si avvia e si popola con `seed_demo`.
 - [ ] Creato `README.md` e aggiornato `AGENTS.md` con setup e comandi.
 
@@ -126,18 +126,18 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 **Obiettivo:** eliminare i rischi immediati e rendere il blog realmente
 leggibile, ricercabile e popolabile, senza regressioni.
 
-**Stima:** 2–3 giorni. **Stato:** `[ ]`
+**Stima:** 2–3 giorni. **Stato:** `[~]`
 
 ### WP1 — Igiene git e segreti
 
 **Obiettivo:** nessun dato utente o segreto nei commit futuri.
-**Dipendenze:** nessuna.
+**Dipendenze:** nessuna. **Stato:** `[x]`
 
-- [ ] Fare un backup locale di `db.sqlite3` (es. `db.sqlite3.bak`) prima di ogni migrazione.
-- [ ] `git rm --cached db.sqlite3`; aggiungere `db.sqlite3` e `*.bak` a `.gitignore`; commit.
-- [ ] Leggere `SECRET_KEY` da `DJANGO_SECRET_KEY`; creare `.env.example` senza valori reali.
-- [ ] Generare una nuova chiave e invalidare le sessioni esistenti.
-- [ ] Verificare che `git ls-files` non contenga DB, `.env` o backup; commit finale.
+- [x] Fare un backup locale di `db.sqlite3` (es. `db.sqlite3.bak`) prima di ogni migrazione.
+- [x] `git rm --cached db.sqlite3`; aggiungere `db.sqlite3` e `*.bak` a `.gitignore`; commit.
+- [x] Leggere `SECRET_KEY` da `DJANGO_SECRET_KEY`; creare `.env.example` senza valori reali.
+- [x] Generare una nuova chiave e invalidare le sessioni esistenti.
+- [x] Verificare che `git ls-files` non contenga DB, `.env` o backup; commit finale.
 
 **Accettazione:** `git ls-files` pulito; il progetto parte con la chiave da env;
 nessuna sessione vecchia resta valida.
@@ -322,6 +322,7 @@ changelog aggiornato.
 | Data | Versione | Modifica |
 |---|---|---|
 | 2026-10-29 | 1.0 | Creazione del documento canonico; incorporate le decisioni del Q&A e il perimetro Fase 1. |
+| 2026-10-30 | 1.1 | WP1 completato: DB e backup untracked, `SECRET_KEY` da `.env`, sessioni invalidate. |
 
 ---
 
