@@ -1,0 +1,73 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Permessi OpenCode V2 per questo progetto.
+  // Vince l'ultima regola che corrisponde.
+  // allow = procede senza chiedere, ask = chiede conferma, deny = blocca.
+  //
+  // Se un comando chiede conferma: leggi cosa sta per essere eseguito.
+  // "once" approva una sola volta; "always" salva l'approvazione per il progetto.
+  // Se un comando è bloccato (deny), non aggirarlo: modifica questo file con cautela.
+  "permissions": [
+    // Fuori dal progetto: chiedi sempre, tranne per la cartella temporanea.
+    { "action": "external_directory", "resource": "*", "effect": "ask" },
+    { "action": "external_directory", "resource": "/tmp/opencode/*", "effect": "allow" },
+
+    // Segreti: gli strumenti read/edit non possono toccare i file .env reali.
+    // I comandi shell restano comunque soggetti alla conferma predefinita.
+    // .env.example è sicuro e resta accessibile.
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" },
+    { "action": "edit", "resource": "*.env", "effect": "deny" },
+    { "action": "edit", "resource": "*.env.*", "effect": "deny" },
+    { "action": "edit", "resource": "*.env.example", "effect": "allow" },
+
+    // File generati, dati e cronologia git: non modificarli con gli strumenti di edit.
+    { "action": "edit", "resource": ".venv/*", "effect": "deny" },
+    { "action": "edit", "resource": ".git/*", "effect": "deny" },
+    { "action": "edit", "resource": "db.sqlite3", "effect": "deny" },
+    { "action": "edit", "resource": "*.bak", "effect": "deny" },
+
+    // Shell: per impostazione predefinita chiedi conferma.
+    { "action": "shell", "resource": "*", "effect": "ask" },
+
+    // Comandi di lettura e verifica: sicuri, nessuna conferma.
+    { "action": "shell", "resource": "pwd", "effect": "allow" },
+    { "action": "shell", "resource": "ls *", "effect": "allow" },
+    { "action": "shell", "resource": "git status *", "effect": "allow" },
+    { "action": "shell", "resource": "git diff *", "effect": "allow" },
+    { "action": "shell", "resource": "git log *", "effect": "allow" },
+    { "action": "shell", "resource": "git show *", "effect": "allow" },
+    { "action": "shell", "resource": "git branch", "effect": "allow" },
+    { "action": "shell", "resource": "git branch --list*", "effect": "allow" },
+    { "action": "shell", "resource": "git branch -a*", "effect": "allow" },
+    { "action": "shell", "resource": "git branch -v*", "effect": "allow" },
+    { "action": "shell", "resource": "git ls-files *", "effect": "allow" },
+    { "action": "shell", "resource": "python manage.py check*", "effect": "allow" },
+    { "action": "shell", "resource": "python manage.py test*", "effect": "allow" },
+    { "action": "shell", "resource": "python manage.py makemigrations --check*", "effect": "allow" },
+    { "action": "shell", "resource": "python manage.py showmigrations*", "effect": "allow" },
+    { "action": "shell", "resource": ".venv/bin/python manage.py check*", "effect": "allow" },
+    { "action": "shell", "resource": ".venv/bin/python manage.py test*", "effect": "allow" },
+    { "action": "shell", "resource": ".venv/bin/python manage.py makemigrations --check*", "effect": "allow" },
+    { "action": "shell", "resource": ".venv/bin/python manage.py showmigrations*", "effect": "allow" },
+    { "action": "shell", "resource": "pip freeze*", "effect": "allow" },
+    { "action": "shell", "resource": "pip list*", "effect": "allow" },
+    { "action": "shell", "resource": "source .venv/bin/activate*", "effect": "allow" },
+
+    // Comandi distruttivi o amministrativi: sempre bloccati.
+    { "action": "shell", "resource": "sudo *", "effect": "deny" },
+    { "action": "shell", "resource": "su *", "effect": "deny" },
+    { "action": "shell", "resource": "rm -rf /*", "effect": "deny" },
+    { "action": "shell", "resource": "rm -fr /*", "effect": "deny" },
+    { "action": "shell", "resource": "dd *", "effect": "deny" },
+    { "action": "shell", "resource": "mkfs*", "effect": "deny" },
+    { "action": "shell", "resource": "shutdown*", "effect": "deny" },
+    { "action": "shell", "resource": "reboot*", "effect": "deny" },
+
+    // Push forzato: troppo rischioso per un progetto alle prime armi.
+    { "action": "shell", "resource": "git push --force*", "effect": "deny" },
+    { "action": "shell", "resource": "git push -f*", "effect": "deny" }
+  ]
+}

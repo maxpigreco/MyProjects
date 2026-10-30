@@ -4,6 +4,10 @@ Django 5.2.3 demo site: user auth, profiles, contact form, and post search.
 Settings package is `MyProjects/`; apps are `blog` (mounted at `/`) and
 `accounts` (mounted at `/accounts/`).
 
+Planning and progress: `PLAN.md` is the single source of truth for roadmap,
+decisions, task status, and acceptance criteria. Update its checkboxes and
+changelog when work is completed.
+
 ## Setup
 
 - Use the local `.venv` (Python 3.12, gitignored); dependencies are pinned in
