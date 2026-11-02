@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.4 — 2026-11-02.
+**Documento canonico di pianificazione e tracking.** Versione 1.5 — 2026-11-02.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -50,7 +50,7 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
-| `README.md` esiste ma è uno stub sul tutorial OpenCode | file su disco |
+| `README.md` documenta progetto, requisiti di sistema e setup | file su disco |
 | Implementazione: WP1–WP3 completati; WP4–WP7 da fare | verifica 2026-11-02 |
 
 **Comandi base** (con venv attiva):
@@ -122,7 +122,7 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 - [x] Titoli duplicati non causano 500.
 - [x] `git ls-files` non include `db.sqlite3` né `.env`.
 - [ ] Un clone pulito si avvia e si popola con `seed_demo`.
-- [ ] Aggiornato `README.md` (già presente come stub) e `AGENTS.md` con setup e comandi.
+- [ ] `README.md` con progetto, requisiti di sistema e setup; `AGENTS.md` allineato.
 
 ---
 
@@ -229,7 +229,7 @@ non crea duplicati.
 - [ ] Eseguire `check`, `makemigrations --check --dry-run` e `manage.py test`; tutto verde.
 - [ ] Smoke manuale: home, dettaglio, ricerca, contatti, signup, reset password, modifica profilo, 404 draft.
 - [ ] Verificare `git ls-files` e assenza di segreti; controllare `git status`.
-- [ ] Riscrivere `README.md` (oggi stub sul tutorial) e aggiornare `AGENTS.md` con setup, comandi e stato del progetto.
+- [ ] Verificare e aggiornare `README.md` e `AGENTS.md` con setup, comandi e stato del progetto a fine fase.
 
 **Accettazione:** tutti i criteri della sezione 5 soddisfatti e registrati nel
 changelog.
@@ -336,6 +336,7 @@ changelog aggiornato.
 | 2026-10-30 | 1.2 | WP2 completato: `status`, `created_at`/`published_at`, autore FK, slug centralizzato, 8 test; migrazioni verificate su copia (incluso rollback). |
 | 2026-11-02 | 1.3 | Revisione piano: corretta la decisione sul post "Draft", registrati `author_name`/slug/`published_at`, chiuso il rischio `.env`, chiariti email, `post_detail` e fixture; admin con slug read-only (10 test). |
 | 2026-11-02 | 1.4 | WP3 completato: segnale profilo idempotente, migrazione `accounts/0002`, view protetta con messaggio, email console, reset password con 4 URL e 6 template, 9 test (19 totali); migrazione verificata su copia e applicata. |
+| 2026-11-02 | 1.5 | `README.md` riscritto con descrizione, requisiti di sistema, setup e configurazione; `AGENTS.md` allineato. |
 
 ---
 

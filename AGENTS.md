@@ -19,9 +19,9 @@ changelog when work is completed.
 - Secrets: `DJANGO_SECRET_KEY` is read from `.env`, which is auto-loaded by
   `settings.py` and gitignored. Copy `.env.example` to create it; never commit
   `.env`.
-- No CI. `README.md` is a short stub to be rewritten in WP7. `db.sqlite3` is
-  local and gitignored (it contains the demo data); a fresh clone must run
-  migrations before use. Do not delete or reset the local DB.
+- No CI. `README.md` documents the project, system requirements and setup.
+  `db.sqlite3` is local and gitignored (it contains the demo data); a fresh
+  clone must run migrations before use. Do not delete or reset the local DB.
 - Ignore `desktop.ini` and `*:Zone.Identifier` files throughout the tree; they
   are Windows metadata, not source.
 
