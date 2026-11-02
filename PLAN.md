@@ -50,7 +50,7 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1 incluso | `git log` |
-| Implementazione: WP1 completato; WP2–WP7 da fare | verifica 2026-10-30 |
+| Implementazione: WP1–WP2 completati; WP3–WP7 da fare | verifica 2026-10-30 |
 
 **Comandi base** (con venv attiva):
 
@@ -69,13 +69,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[~]` | 1/7 WP · 5/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[~]` | 2/7 WP · 11/33 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** WP1 completato; si prosegue con WP2 dopo verifica.
+**Stato attuale:** WP1–WP2 completati; si prosegue con WP3 dopo verifica.
 
 ---
 
@@ -145,14 +145,14 @@ nessuna sessione vecchia resta valida.
 ### WP2 — Modello contenuti
 
 **Obiettivo:** modello di pubblicazione esplicito e autori integri.
-**Dipendenze:** WP1 (backup). WP5 dipende da WP2.
+**Dipendenze:** WP1 (backup). WP5 dipende da WP2. **Stato:** `[x]`
 
-- [ ] Aggiungere `status` con choices `draft`/`published` e default `draft`.
-- [ ] Introdurre `created_at` e `published_at`; migrare da `published` (i post pubblicati ricevono il timestamp).
-- [ ] Sostituire `author` con FK `User` (`on_delete=PROTECT`, `related_name="posts"`); data migration verso `username="user"` (creare l'utente se assente).
-- [ ] Aggiungere `Post.get_absolute_url()`, indice su `status`/`published_at`, ordering `-published_at`.
-- [ ] Centralizzare lo slug in `Post.save()` con suffisso anti-collisione; rimuovere l'override fragile da `PostAdmin`.
-- [ ] Applicare e testare le migrazioni su una **copia** del DB, mai solo sull'originale.
+- [x] Aggiungere `status` con choices `draft`/`published` e default `draft`.
+- [x] Introdurre `created_at` e `published_at`; migrare da `published` (i post pubblicati ricevono il timestamp).
+- [x] Sostituire `author` con FK `User` (`on_delete=PROTECT`, `related_name="posts"`); data migration verso `username="user"` (creare l'utente se assente).
+- [x] Aggiungere `Post.get_absolute_url()`, indice su `status`/`published_at`, ordering `-published_at`.
+- [x] Centralizzare lo slug in `Post.save()` con suffisso anti-collisione; rimuovere l'override fragile da `PostAdmin`.
+- [x] Applicare e testare le migrazioni su una **copia** del DB, mai solo sull'originale.
 
 **Accettazione:** migrazione applicata senza perdita dati; titoli duplicati
 producono slug univoci; nessun post senza autore.
@@ -323,6 +323,7 @@ changelog aggiornato.
 |---|---|---|
 | 2026-10-29 | 1.0 | Creazione del documento canonico; incorporate le decisioni del Q&A e il perimetro Fase 1. |
 | 2026-10-30 | 1.1 | WP1 completato: DB e backup untracked, `SECRET_KEY` da `.env`, sessioni invalidate. |
+| 2026-10-30 | 1.2 | WP2 completato: `status`, `created_at`/`published_at`, autore FK, slug centralizzato, 8 test; migrazioni verificate su copia (incluso rollback). |
 
 ---
 

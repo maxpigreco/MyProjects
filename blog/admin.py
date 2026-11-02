@@ -1,19 +1,24 @@
 from django.contrib import admin
+
 from .models import Post
-from django.utils.text import slugify
+
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display        = ('id', 'title', 'author', 'published', 'is_public')
-    list_filter         = ('is_public', 'published')
-    search_fields       = ('title', 'content')
-    prepopulated_fields = {"slug": ("title",)}  # auto-fills slug
-    ordering            = ('-published',)
+    list_display = (
+        "id",
+        "title",
+        "author",
+        "status",
+        "published_at",
+        "created_at",
+    )
+    list_filter = ("status", "published_at")
+    search_fields = ("title", "content", "author__username", "author_name")
+    prepopulated_fields = {"slug": ("title",)}
+    ordering = ("-published_at", "-created_at")
+    readonly_fields = ("created_at", "published_at", "updated", "author_name")
+    list_select_related = ("author",)
 
-    # read-only fields
-    readonly_fields = ('published', 'updated')
-
-    # save override, lowercase slug force
-    def save_model(self, request, obj, form, change):
-        obj.slug = slugify(obj.title)
-        super().save_model(request, obj, form, change)
+    # The public post detail route is added in WP5.
+    view_on_site = False
