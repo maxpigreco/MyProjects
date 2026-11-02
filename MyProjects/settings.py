@@ -52,6 +52,10 @@ ALLOWED_HOSTS = []
 LOGIN_URL = "login"  # named URL pattern for login
 LOGIN_REDIRECT_URL = "dashboard"  # after successful login
 
+# Development email: print messages (password reset, contact form) to console.
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "noreply@example.com"
+
 
 # Application definition
 

@@ -14,12 +14,6 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile."
     
 @receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-    instance.profile.save()
-
-
-    # request.user.profile.bio
-
-    # <p>{{ user.profile.bio }}</p>
+def create_or_update_user_profile(sender, instance, **kwargs):
+    """Ensure every user has a profile without overwriting existing data."""
+    Profile.objects.get_or_create(user=instance)

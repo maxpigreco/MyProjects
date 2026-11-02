@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.3 — 2026-11-02.
+**Documento canonico di pianificazione e tracking.** Versione 1.4 — 2026-11-02.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -42,16 +42,16 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Fatto | Evidenza |
 |---|---|
 | Progetto Django con app `blog` (`/`) e `accounts` (`/accounts/`) | `MyProjects/urls.py` |
-| 6 post (5 published, 1 draft), 3 utenti, 1 profilo (solo `Bob2`; `user` e `Bob` senza) | query su `db.sqlite3` |
+| 6 post (5 published, 1 draft), 3 utenti, 3 profili (bio solo per `Bob2`) | query su `db.sqlite3` |
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 10 test (modello `Post` + admin); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
+| 19 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
 | `README.md` esiste ma è uno stub sul tutorial OpenCode | file su disco |
-| Implementazione: WP1–WP2 completati; WP3–WP7 da fare | verifica 2026-11-02 |
+| Implementazione: WP1–WP3 completati; WP4–WP7 da fare | verifica 2026-11-02 |
 
 **Comandi base** (con venv attiva):
 
@@ -70,13 +70,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[~]` | 2/7 WP · 11/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[~]` | 3/7 WP · 17/33 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** WP1–WP2 completati; si prosegue con WP3 dopo verifica.
+**Stato attuale:** WP1–WP3 completati; si prosegue con WP4 dopo verifica.
 
 ---
 
@@ -115,11 +115,11 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 - [ ] `python manage.py check` senza errori.
 - [ ] `python manage.py makemigrations --check --dry-run` → “No changes detected”.
 - [ ] `python manage.py test` verde, con assert sui flussi critici.
-- [ ] Nessun 500 su modifica profilo: né anonimo né utenti senza profilo.
+- [x] Nessun 500 su modifica profilo: né anonimo né utenti senza profilo.
 - [ ] Bozze invisibili da home, ricerca e URL diretto.
 - [ ] Contatto salvato nel DB + email in console + honeypot funzionante.
-- [ ] Reset password completo funzionante.
-- [ ] Titoli duplicati non causano 500.
+- [x] Reset password completo funzionante.
+- [x] Titoli duplicati non causano 500.
 - [x] `git ls-files` non include `db.sqlite3` né `.env`.
 - [ ] Un clone pulito si avvia e si popola con `seed_demo`.
 - [ ] Aggiornato `README.md` (già presente come stub) e `AGENTS.md` con setup e comandi.
@@ -169,14 +169,14 @@ validazione.
 ### WP3 — Auth e profili
 
 **Obiettivo:** eliminare i 500 e completare il recupero password.
-**Dipendenze:** WP1. Indipendente da WP2.
+**Dipendenze:** WP1. Indipendente da WP2. **Stato:** `[x]`
 
-- [ ] Rendere idempotente il segnale profilo con `get_or_create`; rimuovere `instance.profile.save()` incondizionato.
-- [ ] Data migration che crea i profili mancanti (`user` e `Bob`).
-- [ ] Aggiungere `@login_required` a `edit_profile_view` e messaggio di successo dopo il salvataggio.
-- [ ] Configurare `EMAIL_BACKEND` console e `DEFAULT_FROM_EMAIL` in dev; i test usano il backend `locmem`.
-- [ ] Implementare reset password completo: 4 URL + template `registration/` + email console.
-- [ ] Test: anonimo → redirect; utente senza profilo → modifica OK; signup → profilo creato; reset invia email e cambia password (`mail.outbox`).
+- [x] Rendere idempotente il segnale profilo con `get_or_create`; rimuovere `instance.profile.save()` incondizionato.
+- [x] Data migration che crea i profili mancanti (`user` e `Bob`).
+- [x] Aggiungere `@login_required` a `edit_profile_view` e messaggio di successo dopo il salvataggio.
+- [x] Configurare `EMAIL_BACKEND` console e `DEFAULT_FROM_EMAIL` in dev; i test usano il backend `locmem`.
+- [x] Implementare reset password completo: 4 URL + template `registration/` + email console.
+- [x] Test: anonimo → redirect; utente senza profilo → modifica OK; signup → profilo creato; reset invia email e cambia password (`mail.outbox`).
 
 **Accettazione:** tutti gli utenti esistenti possono modificare il profilo;
 flusso reset completo verde nei test.
@@ -335,6 +335,7 @@ changelog aggiornato.
 | 2026-10-30 | 1.1 | WP1 completato: DB e backup untracked, `SECRET_KEY` da `.env`, sessioni invalidate. |
 | 2026-10-30 | 1.2 | WP2 completato: `status`, `created_at`/`published_at`, autore FK, slug centralizzato, 8 test; migrazioni verificate su copia (incluso rollback). |
 | 2026-11-02 | 1.3 | Revisione piano: corretta la decisione sul post "Draft", registrati `author_name`/slug/`published_at`, chiuso il rischio `.env`, chiariti email, `post_detail` e fixture; admin con slug read-only (10 test). |
+| 2026-11-02 | 1.4 | WP3 completato: segnale profilo idempotente, migrazione `accounts/0002`, view protetta con messaggio, email console, reset password con 4 URL e 6 template, 9 test (19 totali); migrazione verificata su copia e applicata. |
 
 ---
 

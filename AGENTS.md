@@ -35,23 +35,24 @@ python manage.py test blog.tests.ClassName.test_name  # single test
 python manage.py createsuperuser
 ```
 
-`blog/tests.py` covers the `Post` model and admin (10 tests);
-`accounts/tests.py` is still a placeholder.
+`blog/tests.py` covers the `Post` model and admin; `accounts/tests.py` covers
+profiles, signup and password reset (19 tests total).
 
 ## Conventions and gotchas
 
 - `MyProjects/settings.py` is development-only: `DEBUG = True`, `SECRET_KEY`
-  from `.env`, SQLite, empty `ALLOWED_HOSTS`.
+  from `.env`, SQLite, empty `ALLOWED_HOSTS`, console email backend.
 - Root `templates/base.html` (Bootstrap 5 via CDN) is the shared layout. App
   templates live under `<app>/templates/<app>/`.
 - URL names are global (no namespaces): refer to `index`, `login`, `signup`,
-  `logout`, `dashboard`, `profile`, `edit_profile`, `contact`, `search`.
+  `logout`, `dashboard`, `profile`, `edit_profile`, `contact`, `search`, and
+  `password_reset`, `password_reset_done`, `password_reset_confirm`,
+  `password_reset_complete`. Reset templates live in `templates/registration/`.
   `LOGIN_URL = "login"` and `LOGIN_REDIRECT_URL = "dashboard"`.
-- `accounts.Profile` is created/updated by a `post_save` signal on `User`.
-  Views touching `request.user.profile` must be login-protected;
-  `accounts.views.edit_profile_view` currently lacks `@login_required` and
-  errors for anonymous users. It also needs a profile: `user` and `Bob` have
-  none until the WP3 data migration runs.
+- `accounts.Profile` is ensured by a `post_save` signal on `User`
+  (`get_or_create`, so existing bios are never overwritten).
+  Views touching `request.user.profile` must be login-protected
+  (`edit_profile_view` is).
 - `blog.models.Post.save()` generates the slug (unique, with `-2`/`-3`
   suffixes) and sets `published_at` on first publication. The admin keeps
   `slug` read-only, so changing a title keeps the URL and duplicate titles are
