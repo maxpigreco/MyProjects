@@ -1,9 +1,21 @@
-from django.urls import path
-from . import views
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect
+from django.urls import path
+
+from . import views
+
 
 class LogoutAllowGetView(auth_views.LogoutView):
+    """Log out from a GET link as well as the standard POST."""
+
     http_method_names = ["get", "post", "head", "options", "trace"]
+
+    def get(self, request, *args, **kwargs):
+        """Log the user out and redirect to the success URL."""
+        auth_logout(request)
+        return redirect(self.get_success_url())
+
 
 urlpatterns = [
     path("signup/", views.signup_view, name="signup"),
