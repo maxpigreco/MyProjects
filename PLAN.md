@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.7 — 2026-11-02.
+**Documento canonico di pianificazione e tracking.** Versione 1.8 — 2026-11-02.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -46,12 +46,12 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 38 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
+| 44 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
 | `README.md` documenta progetto, requisiti di sistema e setup | file su disco |
-| Implementazione: WP1–WP5 completati; WP6–WP7 da fare | verifica 2026-11-02 |
+| Implementazione: WP1–WP6 completati; WP7 da fare | verifica 2026-11-02 |
 
 **Comandi base** (con venv attiva):
 
@@ -70,13 +70,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[~]` | 5/7 WP · 27/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[~]` | 6/7 WP · 30/33 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** WP1–WP5 completati; si prosegue con WP6 dopo verifica.
+**Stato attuale:** WP1–WP6 completati; si prosegue con WP7 dopo verifica.
 
 ---
 
@@ -212,11 +212,11 @@ i link funzionano; le viste crescono solo sul dettaglio.
 ### WP6 — Dati demo
 
 **Obiettivo:** progetto riproducibile da clone.
-**Dipendenze:** WP2.
+**Dipendenze:** WP2. **Stato:** `[x]`
 
-- [ ] Management command `seed_demo` idempotente: utente autore `user` (password inutilizzabile), 5 post pubblicati, 1 draft.
-- [ ] Fixture sanificata (solo post, profili e metadati; nessun hash password né sessione).
-- [ ] Test: esecuzione su DB vuoto crea i dati attesi e non duplica al secondo run.
+- [x] Management command `seed_demo` idempotente: utente autore `user` (password inutilizzabile), 5 post pubblicati, 1 draft.
+- [x] Fixture sanificata (solo post, profili e metadati; nessun hash password né sessione).
+- [x] Test: esecuzione su DB vuoto crea i dati attesi e non duplica al secondo run.
 
 **Accettazione:** `seed_demo` su DB vuoto produce lo stato demo; secondo run
 non crea duplicati.
@@ -339,6 +339,7 @@ changelog aggiornato.
 | 2026-11-02 | 1.5 | `README.md` riscritto con descrizione, requisiti di sistema, setup e configurazione; `AGENTS.md` allineato. |
 | 2026-11-02 | 1.6 | WP4 completato: `ContactMessage` + migrazione + admin, salvataggio con email a `CONTACT_EMAIL`, honeypot silenzioso, logging degli errori, 6 test contatti (25 totali); migrazione verificata su copia e applicata. |
 | 2026-11-02 | 1.7 | WP5 completato: home con post pubblicati e paginazione, dettaglio `/posts/<slug>/` con contatore viste, ricerca filtrata, partial card/paginazione, navbar responsive, `logout.html` rimosso; 13 test (38 totali). |
+| 2026-11-02 | 1.8 | WP6 completato: comando `seed_demo` idempotente (utente `user` inutilizzabile, profilo, 5 pubblicati + 1 draft, riallineamento per slug), fixture sanificata `blog/fixtures/demo.json`, 6 test (44 totali); verificato anche il caricamento su DB vuoto. |
 
 ---
 

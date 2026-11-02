@@ -383,3 +383,86 @@ class PostUrlTests(TestCase):
         )
 
         self.assertEqual(post.get_absolute_url(), f"/posts/{post.slug}/")
+
+
+class SeedDemoCommandTests(TestCase):
+    """Tests for the idempotent demo data command."""
+
+    def _run_seed(self):
+        from django.core.management import call_command
+
+        call_command("seed_demo", verbosity=0)
+
+    def test_seed_creates_demo_data_on_empty_database(self):
+        self._run_seed()
+
+        user = get_user_model().objects.get(username="user")
+        self.assertFalse(user.has_usable_password())
+        self.assertTrue(hasattr(user, "profile"))
+
+        self.assertEqual(Post.objects.count(), 6)
+        published = Post.objects.filter(status=Post.Status.PUBLISHED)
+        self.assertEqual(published.count(), 5)
+        self.assertTrue(published.exclude(published_at=None).count(), 5)
+
+        draft = Post.objects.get(status=Post.Status.DRAFT)
+        self.assertEqual(draft.title, "Draft")
+        self.assertIsNone(draft.published_at)
+
+    def test_seed_is_idempotent(self):
+        self._run_seed()
+        first_slugs = list(Post.objects.order_by("pk").values_list("slug", flat=True))
+
+        self._run_seed()
+
+        self.assertEqual(get_user_model().objects.count(), 1)
+        self.assertEqual(Post.objects.count(), 6)
+        self.assertEqual(
+            list(Post.objects.order_by("pk").values_list("slug", flat=True)),
+            first_slugs,
+        )
+
+    def test_seed_restores_demo_content(self):
+        self._run_seed()
+        post = Post.objects.get(slug="understanding-blockchain")
+        post.title = "Edited title"
+        post.save()
+
+        self._run_seed()
+
+        post.refresh_from_db()
+        self.assertEqual(post.title, "Understanding Blockchain")
+        self.assertEqual(post.slug, "understanding-blockchain")
+
+    def test_home_shows_seeded_published_posts(self):
+        self._run_seed()
+
+        response = self.client.get(reverse("index"))
+
+        self.assertContains(response, "Why You Should Learn Rust in 2025")
+        self.assertNotContains(response, ">Draft<")
+
+    def test_fixture_loads_demo_data(self):
+        from django.core.management import call_command
+
+        call_command("loaddata", "demo", verbosity=0)
+
+        self.assertEqual(Post.objects.count(), 6)
+        self.assertEqual(
+            Post.objects.filter(status=Post.Status.PUBLISHED).count(),
+            5,
+        )
+        user = get_user_model().objects.get(username="user")
+        self.assertFalse(user.has_usable_password())
+        self.assertTrue(hasattr(user, "profile"))
+
+    def test_fixture_contains_no_password_hash(self):
+        from django.conf import settings
+
+        fixture = (settings.BASE_DIR / "blog/fixtures/demo.json").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertNotIn("pbkdf2_", fixture)
+        self.assertNotIn("argon2", fixture)
+        self.assertIn('"password": "!"', fixture)

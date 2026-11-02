@@ -32,12 +32,13 @@ python manage.py runserver
 python manage.py check
 python manage.py makemigrations --check --dry-run    # verify no pending migrations
 python manage.py test blog.tests.ClassName.test_name  # single test
+python manage.py seed_demo                           # refresh demo content
 python manage.py createsuperuser
 ```
 
 `blog/tests.py` covers the `Post` model and admin, the public home/detail/search
-views and contact messages; `accounts/tests.py` covers profiles, signup and
-password reset (38 tests total).
+views, contact messages and the `seed_demo` command; `accounts/tests.py` covers
+profiles, signup and password reset (44 tests total).
 
 ## Conventions and gotchas
 
@@ -70,6 +71,10 @@ password reset (38 tests total).
   `view_on_site = True`.
 - Post cards and pagination are shared partials:
   `blog/templates/blog/_post_card.html` and `_pagination.html`.
+- `seed_demo` creates or refreshes the demo user `user` (unusable password,
+  no staff flags), its profile and 6 posts keyed by slug. It is idempotent and
+  overwrites edits to demo posts. `blog/fixtures/demo.json` is a sanitized
+  snapshot for `loaddata demo` on an empty DB only.
 - Contact submissions are stored in `blog.ContactMessage` and emailed to
   `CONTACT_EMAIL` (console backend in dev). The hidden `website` field is a
   honeypot: when filled, the view redirects to thanks without saving or

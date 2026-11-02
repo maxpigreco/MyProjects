@@ -1,0 +1,124 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "!",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "user",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-11-02T16:27:24.725Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.profile",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "bio": ""
+    }
+  },
+  {
+    "model": "blog.post",
+    "pk": 1,
+    "fields": {
+      "title": "The Rise of AI in Everyday Life",
+      "slug": "the-rise-of-ai-in-everyday-life",
+      "author_name": "Zenva Academy",
+      "author": 1,
+      "content": "Some Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.\nSome Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.",
+      "created_at": "2026-11-02T16:27:25.328Z",
+      "published_at": "2025-06-28T00:42:07Z",
+      "updated": "2026-11-02T16:27:25.328Z",
+      "status": "published",
+      "views": 0
+    }
+  },
+  {
+    "model": "blog.post",
+    "pk": 2,
+    "fields": {
+      "title": "Understanding Blockchain",
+      "slug": "understanding-blockchain",
+      "author_name": "Zenva Academy",
+      "author": 1,
+      "content": "Some Data.Some Data.Some Data.Some Data.Some Data.\nSome Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.",
+      "created_at": "2026-11-02T16:27:25.338Z",
+      "published_at": "2025-06-28T00:47:07Z",
+      "updated": "2026-11-02T16:27:25.338Z",
+      "status": "published",
+      "views": 0
+    }
+  },
+  {
+    "model": "blog.post",
+    "pk": 3,
+    "fields": {
+      "title": "10 Habits of Highly Productive Developers",
+      "slug": "10-habits-of-highly-productive-developers",
+      "author_name": "Zenva Academy",
+      "author": 1,
+      "content": "Some Data.Some Data.Some Data.Some Data.Some Data. Some Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.",
+      "created_at": "2026-11-02T16:27:25.348Z",
+      "published_at": "2025-06-28T00:47:28Z",
+      "updated": "2026-11-02T16:27:25.348Z",
+      "status": "published",
+      "views": 0
+    }
+  },
+  {
+    "model": "blog.post",
+    "pk": 4,
+    "fields": {
+      "title": "How Dark Mode Took Over UI Design",
+      "slug": "how-dark-mode-took-over-ui-design",
+      "author_name": "Zenva Academy",
+      "author": 1,
+      "content": "Some Data.Some Data.Some Data.Some Data.Some Data. Some Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.",
+      "created_at": "2026-11-02T16:27:25.357Z",
+      "published_at": "2025-06-28T00:47:40Z",
+      "updated": "2026-11-02T16:27:25.357Z",
+      "status": "published",
+      "views": 0
+    }
+  },
+  {
+    "model": "blog.post",
+    "pk": 5,
+    "fields": {
+      "title": "Why You Should Learn Rust in 2025",
+      "slug": "why-you-should-learn-rust-in-2025",
+      "author_name": "Zenva Academy",
+      "author": 1,
+      "content": "Some Data.Some Data.Some Data.Some Data.Some Data. Some Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.\n\nSome Data.Some Data.Some Data.Some Data.Some Data.",
+      "created_at": "2026-11-02T16:27:25.367Z",
+      "published_at": "2025-06-28T00:47:52Z",
+      "updated": "2026-11-02T16:27:25.367Z",
+      "status": "published",
+      "views": 0
+    }
+  },
+  {
+    "model": "blog.post",
+    "pk": 6,
+    "fields": {
+      "title": "Draft",
+      "slug": "draft",
+      "author_name": "Admin",
+      "author": 1,
+      "content": "",
+      "created_at": "2026-11-02T16:27:25.378Z",
+      "published_at": null,
+      "updated": "2026-11-02T16:27:25.378Z",
+      "status": "draft",
+      "views": 0
+    }
+  }
+]

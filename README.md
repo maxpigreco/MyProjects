@@ -10,8 +10,8 @@ avanzamento sono in [`PLAN.md`](PLAN.md).
 
 ## Stato attuale
 
-- Fase 1 in corso: WP1–WP5 completati, WP6–WP7 da fare.
-- Test automatici: 38 test verdi (`blog` e `accounts`).
+- Fase 1 in corso: WP1–WP6 completati, WP7 da fare.
+- Test automatici: 44 test verdi (`blog` e `accounts`).
 - Database locale SQLite con dati demo; non viene versionato.
 
 ## Requisiti di sistema
@@ -100,6 +100,36 @@ sudo apt install python3.12 python3.12-venv
    Poi apri <http://127.0.0.1:8000/>. L'admin è su
    <http://127.0.0.1:8000/admin/>.
 
+## Dati demo
+
+Dopo le migrazioni puoi popolare il blog con i contenuti dimostrativi:
+
+```bash
+python manage.py seed_demo
+```
+
+Il comando crea o riallinea:
+
+- l'utente autore `user`, con password **non utilizzabile** e senza privilegi
+  staff;
+- il profilo associato, creato dal segnale `post_save`;
+- 5 post pubblicati e 1 draft.
+
+Il comando è idempotente: eseguirlo più volte non crea duplicati e riporta i
+post demo al contenuto previsto (le modifiche manuali ai post demo vengono
+sovrascritte). I post non demo non vengono toccati.
+
+In alternativa, su un database **vuoto**, puoi caricare la fixture sanificata:
+
+```bash
+python manage.py loaddata demo
+```
+
+La fixture contiene solo l'utente demo (password `!`, nessun hash), il suo
+profilo e i 6 post: nessuna sessione e nessun messaggio di contatto. Usa
+`seed_demo` come opzione principale; `loaddata` usa chiavi primarie fisse e va
+eseguito solo su un database appena migrato.
+
 ## Configurazione dell'ambiente
 
 Le variabili sono lette da `.env`, caricato automaticamente da
@@ -132,6 +162,7 @@ python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py test
 python manage.py test blog.tests.PostModelTests.test_slug_is_generated_from_title
+python manage.py seed_demo
 python manage.py runserver
 python manage.py createsuperuser
 ```
@@ -157,4 +188,6 @@ python manage.py test
 ```
 
 I test coprono il modello `Post` e il relativo admin, la creazione dei profili,
-il signup, la modifica del profilo e il flusso completo di reset password.
+il signup, la modifica del profilo, il flusso completo di reset password, le
+viste pubbliche del blog, i contatti e il comando `seed_demo` (inclusa la
+fixture).
