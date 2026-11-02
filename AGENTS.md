@@ -19,9 +19,9 @@ changelog when work is completed.
 - Secrets: `DJANGO_SECRET_KEY` is read from `.env`, which is auto-loaded by
   `settings.py` and gitignored. Copy `.env.example` to create it; never commit
   `.env`.
-- No README or CI. `db.sqlite3` is local and gitignored (it contains the demo
-  data); a fresh clone must run migrations before use. Do not delete or reset
-  the local DB.
+- No CI. `README.md` is a short stub to be rewritten in WP7. `db.sqlite3` is
+  local and gitignored (it contains the demo data); a fresh clone must run
+  migrations before use. Do not delete or reset the local DB.
 - Ignore `desktop.ini` and `*:Zone.Identifier` files throughout the tree; they
   are Windows metadata, not source.
 
@@ -35,12 +35,13 @@ python manage.py test blog.tests.ClassName.test_name  # single test
 python manage.py createsuperuser
 ```
 
-Test files are placeholders: `manage.py test` currently runs 0 tests.
+`blog/tests.py` covers the `Post` model and admin (10 tests);
+`accounts/tests.py` is still a placeholder.
 
 ## Conventions and gotchas
 
-- `MyProjects/settings.py` is development-only: `DEBUG = True`, hardcoded
-  `SECRET_KEY`, SQLite, empty `ALLOWED_HOSTS`.
+- `MyProjects/settings.py` is development-only: `DEBUG = True`, `SECRET_KEY`
+  from `.env`, SQLite, empty `ALLOWED_HOSTS`.
 - Root `templates/base.html` (Bootstrap 5 via CDN) is the shared layout. App
   templates live under `<app>/templates/<app>/`.
 - URL names are global (no namespaces): refer to `index`, `login`, `signup`,
@@ -49,11 +50,15 @@ Test files are placeholders: `manage.py test` currently runs 0 tests.
 - `accounts.Profile` is created/updated by a `post_save` signal on `User`.
   Views touching `request.user.profile` must be login-protected;
   `accounts.views.edit_profile_view` currently lacks `@login_required` and
-  errors for anonymous users.
-- `blog.admin.PostAdmin.save_model` always overwrites `slug` with
-  `slugify(title)`, so the `prepopulated_fields` value is discarded. `slug` is
-  unique, so posts with identical titles raise an integrity error.
+  errors for anonymous users. It also needs a profile: `user` and `Bob` have
+  none until the WP3 data migration runs.
+- `blog.models.Post.save()` generates the slug (unique, with `-2`/`-3`
+  suffixes) and sets `published_at` on first publication. The admin keeps
+  `slug` read-only, so changing a title keeps the URL and duplicate titles are
+  allowed.
 - `blog.views.search_view` queries all `Post` rows without filtering
-  `is_public`.
+  `status="published"`.
+- `Post.get_absolute_url()` targets `post_detail`, added in WP5; until then the
+  admin uses `view_on_site = False`.
 - `accounts/templates/accounts/logout.html` is unused: logout uses a
   `LogoutView` subclass that redirects to the `login` URL.

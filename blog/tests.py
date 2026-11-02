@@ -1,7 +1,9 @@
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
+from .admin import PostAdmin
 from .models import Post
 
 
@@ -75,3 +77,57 @@ class PostModelTests(TestCase):
     def test_string_representation_is_title(self):
         post = self._create_post(title="Readable Title")
         self.assertEqual(str(post), "Readable Title")
+
+
+class PostAdminTests(TestCase):
+    """Tests for the admin slug handling."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin_user = get_user_model().objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="admin-pass-123",
+        )
+
+    def _admin_form(self, data, instance=None):
+        model_admin = PostAdmin(Post, AdminSite())
+        request = RequestFactory().get("/admin/blog/post/add/")
+        request.user = self.admin_user
+        form_class = model_admin.get_form(request, obj=instance)
+        return form_class(data=data, instance=instance)
+
+    def _form_data(self, title):
+        return {
+            "title": title,
+            "author": self.admin_user.pk,
+            "content": "Content",
+            "status": Post.Status.DRAFT,
+            "views": 0,
+        }
+
+    def test_admin_creates_unique_slug_for_duplicate_title(self):
+        Post.objects.create(
+            title="Same Title",
+            content="First",
+            author=self.admin_user,
+        )
+
+        form = self._admin_form(self._form_data("Same Title"))
+        self.assertTrue(form.is_valid(), form.errors)
+        post = form.save()
+
+        self.assertEqual(post.slug, "same-title-2")
+
+    def test_admin_keeps_slug_when_title_changes(self):
+        post = Post.objects.create(
+            title="Original Title",
+            content="Content",
+            author=self.admin_user,
+        )
+
+        form = self._admin_form(self._form_data("Renamed Title"), instance=post)
+        self.assertTrue(form.is_valid(), form.errors)
+        saved = form.save()
+
+        self.assertEqual(saved.slug, "original-title")

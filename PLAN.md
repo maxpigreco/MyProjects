@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.0 — 2026-10-29.
+**Documento canonico di pianificazione e tracking.** Versione 1.3 — 2026-11-02.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -42,15 +42,16 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Fatto | Evidenza |
 |---|---|
 | Progetto Django con app `blog` (`/`) e `accounts` (`/accounts/`) | `MyProjects/urls.py` |
-| 6 post nel DB, 3 utenti, 1 solo profilo | query su `db.sqlite3` |
+| 6 post (5 published, 1 draft), 3 utenti, 1 profilo (solo `Bob2`; `user` e `Bob` senza) | query su `db.sqlite3` |
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 0 test; `check --deploy` con 7 warning | `manage.py test`, `check --deploy` |
+| 10 test (modello `Post` + admin); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
-| Repo git su `main`, commit WP1 incluso | `git log` |
-| Implementazione: WP1–WP2 completati; WP3–WP7 da fare | verifica 2026-10-30 |
+| Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
+| `README.md` esiste ma è uno stub sul tutorial OpenCode | file su disco |
+| Implementazione: WP1–WP2 completati; WP3–WP7 da fare | verifica 2026-11-02 |
 
 **Comandi base** (con venv attiva):
 
@@ -87,8 +88,12 @@ python manage.py runserver
 | Autore post | FK a `User`, non campo testuale. |
 | Post esistenti | Tutti assegnati all'utente `username="user"`. |
 | Pubblicazione | `status` (`draft`/`published`) + `published_at`. |
-| Dati esistenti | `is_public=True` → `published` (incluso il post "Draft", che oggi è pubblico). |
-| Email | Backend console in dev; SMTP configurabile via env in futuro. |
+| Dati esistenti | `is_public=True` → `published`, tranne il post "Draft" vuoto, convertito in `draft` (eccezione esplicita in `0004`). |
+| Autore storico | `author_name` conserva il testo originale; la FK `author` è l'autore operativo. |
+| Unpublish | `published_at` resta valorizzato quando un post torna in draft; l'accesso è deciso da `status`. |
+| Slug | Generato alla creazione se vuoto, con suffisso `-2`, `-3`, …; resta stabile se cambia il titolo. |
+| URL dettaglio | `Post.get_absolute_url()` usa `post_detail` (rotta introdotta in WP5); fino ad allora `view_on_site=False`. |
+| Email | Backend console in dev; mittente `DEFAULT_FROM_EMAIL` e destinatario contatti `CONTACT_EMAIL` da env in futuro. |
 | DB in git | Untrack + nuovo commit; `SECRET_KEY` ruotata. Vecchia copia resta nella storia (repo non condiviso). |
 | Dati demo | Management command `seed_demo` idempotente + fixture sanificata. |
 | UI | Inglese, come oggi. Home: hero breve + ultimi post. |
@@ -117,7 +122,7 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 - [ ] Titoli duplicati non causano 500.
 - [x] `git ls-files` non include `db.sqlite3` né `.env`.
 - [ ] Un clone pulito si avvia e si popola con `seed_demo`.
-- [ ] Creato `README.md` e aggiornato `AGENTS.md` con setup e comandi.
+- [ ] Aggiornato `README.md` (già presente come stub) e `AGENTS.md` con setup e comandi.
 
 ---
 
@@ -157,6 +162,10 @@ nessuna sessione vecchia resta valida.
 **Accettazione:** migrazione applicata senza perdita dati; titoli duplicati
 producono slug univoci; nessun post senza autore.
 
+**Note WP2:** l'admin mostra `slug` read-only: non viene riscritto al cambio
+titolo e i titoli duplicati producono slug `-2`/`-3` senza errori di
+validazione.
+
 ### WP3 — Auth e profili
 
 **Obiettivo:** eliminare i 500 e completare il recupero password.
@@ -165,6 +174,7 @@ producono slug univoci; nessun post senza autore.
 - [ ] Rendere idempotente il segnale profilo con `get_or_create`; rimuovere `instance.profile.save()` incondizionato.
 - [ ] Data migration che crea i profili mancanti (`user` e `Bob`).
 - [ ] Aggiungere `@login_required` a `edit_profile_view` e messaggio di successo dopo il salvataggio.
+- [ ] Configurare `EMAIL_BACKEND` console e `DEFAULT_FROM_EMAIL` in dev; i test usano il backend `locmem`.
 - [ ] Implementare reset password completo: 4 URL + template `registration/` + email console.
 - [ ] Test: anonimo → redirect; utente senza profilo → modifica OK; signup → profilo creato; reset invia email e cambia password (`mail.outbox`).
 
@@ -177,7 +187,7 @@ flusso reset completo verde nei test.
 **Dipendenze:** WP1. Indipendente da WP2/WP3.
 
 - [ ] Creare `ContactMessage` (nome, email, messaggio, creato il, letto) + migrazione + admin.
-- [ ] `contact_view`: salva, invia email a `DEFAULT_FROM_EMAIL`, redirect a `contact_thanks`.
+- [ ] `contact_view`: salva, invia email a `CONTACT_EMAIL` con mittente `DEFAULT_FROM_EMAIL`, redirect a `contact_thanks`.
 - [ ] Aggiungere honeypot (`website` nascosto): se compilato, redirect a thanks senza salvare/inviare.
 - [ ] Test: persistenza, email in outbox, honeypot ignorato, validazione `min_length`.
 
@@ -190,7 +200,7 @@ form invalido → nessun effetto collaterale.
 **Dipendenze:** WP2. WP4 non blocca.
 
 - [ ] Home con hero breve + lista post pubblicati, paginazione (6/pagina), stato vuoto.
-- [ ] Dettaglio `/posts/<slug>/`: solo pubblicati, 404 per draft; incremento viste atomico con `F()`.
+- [ ] Dettaglio `/posts/<slug>/` (`name="post_detail"`): solo pubblicati, 404 per draft; incremento viste atomico con `F()`.
 - [ ] Ricerca con `Q` su titolo/contenuto, solo pubblicati, link reali al dettaglio, paginazione.
 - [ ] Partial riutilizzabile per le card e navbar aggiornata.
 - [ ] Rimuovere `accounts/templates/accounts/logout.html` (vuoto e non usato); `thanks` ora è collegato.
@@ -205,7 +215,7 @@ i link funzionano; le viste crescono solo sul dettaglio.
 **Dipendenze:** WP2.
 
 - [ ] Management command `seed_demo` idempotente: utente autore `user` (password inutilizzabile), 5 post pubblicati, 1 draft.
-- [ ] Fixture sanificata senza hash password né sessioni.
+- [ ] Fixture sanificata (solo post, profili e metadati; nessun hash password né sessione).
 - [ ] Test: esecuzione su DB vuoto crea i dati attesi e non duplica al secondo run.
 
 **Accettazione:** `seed_demo` su DB vuoto produce lo stato demo; secondo run
@@ -219,7 +229,7 @@ non crea duplicati.
 - [ ] Eseguire `check`, `makemigrations --check --dry-run` e `manage.py test`; tutto verde.
 - [ ] Smoke manuale: home, dettaglio, ricerca, contatti, signup, reset password, modifica profilo, 404 draft.
 - [ ] Verificare `git ls-files` e assenza di segreti; controllare `git status`.
-- [ ] Creare `README.md` e aggiornare `AGENTS.md` con setup, comandi e stato del progetto.
+- [ ] Riscrivere `README.md` (oggi stub sul tutorial) e aggiornare `AGENTS.md` con setup, comandi e stato del progetto.
 
 **Accettazione:** tutti i criteri della sezione 5 soddisfatti e registrati nel
 changelog.
@@ -285,7 +295,7 @@ senza modificare il codice o il DB.
 | `DEBUG=True`, cookie non secure | Bassa in locale | Accettato | Documentato; chiuso solo in Fase 4 |
 | Nessun rate limiting | Bassa in locale | Accettato | Fase 5 |
 | Bootstrap CDN senza SRI | Bassa | Accettato | Vendorizzazione in Fase 4 |
-| Segreti esportati a mano in `.env` | Bassa | Aperto | `.env.example` + `.gitignore`; valutare auto-load |
+| Segreti esportati a mano in `.env` | Bassa | Chiuso | Loader stdlib in `settings.py`, `.env.example` + `.gitignore` |
 
 ---
 
@@ -324,6 +334,7 @@ changelog aggiornato.
 | 2026-10-29 | 1.0 | Creazione del documento canonico; incorporate le decisioni del Q&A e il perimetro Fase 1. |
 | 2026-10-30 | 1.1 | WP1 completato: DB e backup untracked, `SECRET_KEY` da `.env`, sessioni invalidate. |
 | 2026-10-30 | 1.2 | WP2 completato: `status`, `created_at`/`published_at`, autore FK, slug centralizzato, 8 test; migrazioni verificate su copia (incluso rollback). |
+| 2026-11-02 | 1.3 | Revisione piano: corretta la decisione sul post "Draft", registrati `author_name`/slug/`published_at`, chiuso il rischio `.env`, chiariti email, `post_detail` e fixture; admin con slug read-only (10 test). |
 
 ---
 
