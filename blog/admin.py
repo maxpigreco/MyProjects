@@ -24,9 +24,7 @@ class PostAdmin(admin.ModelAdmin):
         "author_name",
     )
     list_select_related = ("author",)
-
-    # The public post detail route is added in WP5.
-    view_on_site = False
+    view_on_site = True
 
 
 @admin.register(ContactMessage)

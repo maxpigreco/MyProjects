@@ -2,17 +2,26 @@
 
 {% block content %}
 
-<h1>Search posts</h1>
+<h1 class="mb-4">Search posts</h1>
 
 <form method="get" class="d-flex gap-2 mb-4">
-    {{ form.q }} <button class="btn btn-outline-primary">Search</button>
+    {{ form.q }}
+    <button class="btn btn-outline-primary">Search</button>
 </form>
 
-<ul>
-    {% for post in results %}
-        <li><a href="#">{{ post.title }}</a></li>
+{% if term %}
+    <p class="text-muted">Results for &ldquo;{{ term }}&rdquo;</p>
+{% endif %}
+
+<div class="row g-4">
+    {% for post in page_obj %}
+        {% include "blog/_post_card.html" %}
     {% empty %}
-        <li>No posts found.</li>
+        <div class="col-12">
+            <p class="text-muted mb-0">No posts found.</p>
+        </div>
     {% endfor %}
-</ul>
+</div>
+
+{% include "blog/_pagination.html" %}
 {% endblock %}

@@ -3,16 +3,32 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
-from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
+from django.db.models import F, Q
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ContactForm, SearchForm
 from .models import ContactMessage, Post
 
 logger = logging.getLogger(__name__)
+POSTS_PER_PAGE = 6
+
+
+def _paginate(request, queryset):
+    """Return the requested page of posts, six per page."""
+    paginator = Paginator(queryset, POSTS_PER_PAGE)
+    return paginator.get_page(request.GET.get("page"))
 
 
 def index_view(request):
-    return render(request, "blog/index.html")
+    posts = Post.objects.filter(
+        status=Post.Status.PUBLISHED
+    ).select_related("author")
+    return render(
+        request,
+        "blog/index.html",
+        {"page_obj": _paginate(request, posts)},
+    )
 
 @login_required
 def dashboard_view(request):
@@ -65,13 +81,38 @@ def _send_contact_notification(contact_message: ContactMessage) -> None:
         )
 
 
+def post_detail_view(request, slug):
+    post = get_object_or_404(
+        Post.objects.select_related("author"),
+        slug=slug,
+        status=Post.Status.PUBLISHED,
+    )
+    Post.objects.filter(pk=post.pk).update(views=F("views") + 1)
+    post.refresh_from_db(fields=["views"])
+
+    return render(request, "blog/post_detail.html", {"post": post})
+
+
 def search_view(request):
     form = SearchForm(request.GET or None)
-    results = Post.objects.all()
+    term = ""
+    if form.is_valid():
+        term = form.cleaned_data["q"].strip()
 
-    if form.is_valid() and form.cleaned_data['q']:
-        term = form.cleaned_data['q']
-        # search in title or content
-        results = results.filter(title__icontains=term) | (results.filter(content__icontains=term))
+    results = Post.objects.filter(
+        status=Post.Status.PUBLISHED
+    ).select_related("author")
+    if term:
+        results = results.filter(
+            Q(title__icontains=term) | Q(content__icontains=term)
+        )
 
-    return render(request, "blog/search.html", {"form": form, "results": results})
+    return render(
+        request,
+        "blog/search.html",
+        {
+            "form": form,
+            "page_obj": _paginate(request, results),
+            "term": term,
+        },
+    )

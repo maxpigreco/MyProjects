@@ -1,0 +1,16 @@
+<div class="col-md-6 col-lg-4">
+    <article class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+            <h2 class="h5 card-title">
+                <a href="{{ post.get_absolute_url }}" class="text-decoration-none">{{ post.title }}</a>
+            </h2>
+            <p class="card-subtitle mb-2 text-muted small">
+                {{ post.author_name|default:post.author.username }}
+                &middot;
+                <time datetime="{{ post.published_at|date:'c' }}">{{ post.published_at|date:"M j, Y" }}</time>
+            </p>
+            <p class="card-text flex-grow-1">{{ post.content|truncatechars:160 }}</p>
+            <a href="{{ post.get_absolute_url }}" class="btn btn-outline-primary btn-sm align-self-start">Read more</a>
+        </div>
+    </article>
+</div>

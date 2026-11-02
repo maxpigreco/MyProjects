@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.6 — 2026-11-02.
+**Documento canonico di pianificazione e tracking.** Versione 1.7 — 2026-11-02.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -46,12 +46,12 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 25 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
+| 38 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
 | `README.md` documenta progetto, requisiti di sistema e setup | file su disco |
-| Implementazione: WP1–WP4 completati; WP5–WP7 da fare | verifica 2026-11-02 |
+| Implementazione: WP1–WP5 completati; WP6–WP7 da fare | verifica 2026-11-02 |
 
 **Comandi base** (con venv attiva):
 
@@ -70,13 +70,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[~]` | 4/7 WP · 21/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[~]` | 5/7 WP · 27/33 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** WP1–WP4 completati; si prosegue con WP5 dopo verifica.
+**Stato attuale:** WP1–WP5 completati; si prosegue con WP6 dopo verifica.
 
 ---
 
@@ -116,7 +116,7 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 - [ ] `python manage.py makemigrations --check --dry-run` → “No changes detected”.
 - [ ] `python manage.py test` verde, con assert sui flussi critici.
 - [x] Nessun 500 su modifica profilo: né anonimo né utenti senza profilo.
-- [ ] Bozze invisibili da home, ricerca e URL diretto.
+- [x] Bozze invisibili da home, ricerca e URL diretto.
 - [x] Contatto salvato nel DB + email in console + honeypot funzionante.
 - [x] Reset password completo funzionante.
 - [x] Titoli duplicati non causano 500.
@@ -197,14 +197,14 @@ form invalido → nessun effetto collaterale.
 ### WP5 — Blog pubblico
 
 **Obiettivo:** un visitatore anonimo legge e cerca i soli post pubblicati.
-**Dipendenze:** WP2. WP4 non blocca.
+**Dipendenze:** WP2. WP4 non blocca. **Stato:** `[x]`
 
-- [ ] Home con hero breve + lista post pubblicati, paginazione (6/pagina), stato vuoto.
-- [ ] Dettaglio `/posts/<slug>/` (`name="post_detail"`): solo pubblicati, 404 per draft; incremento viste atomico con `F()`.
-- [ ] Ricerca con `Q` su titolo/contenuto, solo pubblicati, link reali al dettaglio, paginazione.
-- [ ] Partial riutilizzabile per le card e navbar aggiornata.
-- [ ] Rimuovere `accounts/templates/accounts/logout.html` (vuoto e non usato); `thanks` ora è collegato.
-- [ ] Test: index esclude draft; dettaglio 404; viste incrementate; ricerca filtrata e link corretti.
+- [x] Home con hero breve + lista post pubblicati, paginazione (6/pagina), stato vuoto.
+- [x] Dettaglio `/posts/<slug>/` (`name="post_detail"`): solo pubblicati, 404 per draft; incremento viste atomico con `F()`.
+- [x] Ricerca con `Q` su titolo/contenuto, solo pubblicati, link reali al dettaglio, paginazione.
+- [x] Partial riutilizzabile per le card e navbar aggiornata.
+- [x] Rimuovere `accounts/templates/accounts/logout.html` (vuoto e non usato); `thanks` ora è collegato.
+- [x] Test: index esclude draft; dettaglio 404; viste incrementate; ricerca filtrata e link corretti.
 
 **Accettazione:** home, dettaglio e ricerca mostrano solo contenuti pubblicati;
 i link funzionano; le viste crescono solo sul dettaglio.
@@ -338,6 +338,7 @@ changelog aggiornato.
 | 2026-11-02 | 1.4 | WP3 completato: segnale profilo idempotente, migrazione `accounts/0002`, view protetta con messaggio, email console, reset password con 4 URL e 6 template, 9 test (19 totali); migrazione verificata su copia e applicata. |
 | 2026-11-02 | 1.5 | `README.md` riscritto con descrizione, requisiti di sistema, setup e configurazione; `AGENTS.md` allineato. |
 | 2026-11-02 | 1.6 | WP4 completato: `ContactMessage` + migrazione + admin, salvataggio con email a `CONTACT_EMAIL`, honeypot silenzioso, logging degli errori, 6 test contatti (25 totali); migrazione verificata su copia e applicata. |
+| 2026-11-02 | 1.7 | WP5 completato: home con post pubblicati e paginazione, dettaglio `/posts/<slug>/` con contatore viste, ricerca filtrata, partial card/paginazione, navbar responsive, `logout.html` rimosso; 13 test (38 totali). |
 
 ---
 

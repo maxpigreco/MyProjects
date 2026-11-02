@@ -1,0 +1,19 @@
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Post pages" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+            <a class="page-link" href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}1{% endif %}{% if term %}&amp;q={{ term|urlencode }}{% endif %}">Previous</a>
+        </li>
+
+        {% for number in page_obj.paginator.page_range %}
+            <li class="page-item {% if number == page_obj.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ number }}{% if term %}&amp;q={{ term|urlencode }}{% endif %}">{{ number }}</a>
+            </li>
+        {% endfor %}
+
+        <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+            <a class="page-link" href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}{{ page_obj.paginator.num_pages }}{% endif %}{% if term %}&amp;q={{ term|urlencode }}{% endif %}">Next</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}

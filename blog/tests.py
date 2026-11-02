@@ -238,3 +238,148 @@ class ContactViewTests(TestCase):
             "Failed to send contact notification",
             logs.output[0],
         )
+
+
+class PublicPostViewTests(TestCase):
+    """Tests for the public home, detail, and search views."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username="writer",
+            password="test-pass-123",
+        )
+
+    def _create_post(self, **overrides):
+        data = {
+            "title": "Published Post",
+            "content": "Body of the post",
+            "author": self.user,
+            "status": Post.Status.PUBLISHED,
+        }
+        data.update(overrides)
+        return Post.objects.create(**data)
+
+    def test_home_lists_only_published_posts(self):
+        self._create_post(title="Visible Post")
+        self._create_post(title="Hidden Draft", status=Post.Status.DRAFT)
+
+        response = self.client.get(reverse("index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Visible Post")
+        self.assertNotContains(response, "Hidden Draft")
+
+    def test_home_shows_empty_state(self):
+        response = self.client.get(reverse("index"))
+
+        self.assertContains(response, "No published posts yet.")
+
+    def test_home_paginates_six_posts(self):
+        for index in range(7):
+            self._create_post(title=f"Post number {index}")
+
+        response = self.client.get(reverse("index"))
+
+        self.assertEqual(len(response.context["page_obj"]), 6)
+        self.assertTrue(response.context["page_obj"].has_next())
+
+    def test_post_detail_shows_published_post_and_counts_view(self):
+        post = self._create_post(author_name="Zenva Academy")
+
+        response = self.client.get(post.get_absolute_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, post.title)
+        self.assertContains(response, "Zenva Academy")
+        post.refresh_from_db()
+        self.assertEqual(post.views, 1)
+
+    def test_post_detail_falls_back_to_username(self):
+        post = self._create_post(author_name="")
+
+        response = self.client.get(post.get_absolute_url())
+
+        self.assertContains(response, "writer")
+
+    def test_post_detail_returns_404_for_draft(self):
+        post = self._create_post(status=Post.Status.DRAFT)
+
+        response = self.client.get(
+            reverse("post_detail", kwargs={"slug": post.slug})
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_detail_returns_404_for_unknown_slug(self):
+        response = self.client.get(
+            reverse("post_detail", kwargs={"slug": "missing"})
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_search_matches_title_and_excludes_drafts(self):
+        self._create_post(title="Django tips", content="Unrelated body")
+        self._create_post(
+            title="Draft about Django",
+            status=Post.Status.DRAFT,
+        )
+
+        response = self.client.get(reverse("search"), {"q": "Django"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Django tips")
+        self.assertNotContains(response, "Draft about Django")
+
+    def test_search_matches_content(self):
+        self._create_post(title="Other title", content="Unique needle here")
+
+        response = self.client.get(reverse("search"), {"q": "needle"})
+
+        self.assertContains(response, "Other title")
+
+    def test_search_without_term_lists_all_published_posts(self):
+        self._create_post(title="First article")
+        self._create_post(title="Second article")
+
+        response = self.client.get(reverse("search"), {"q": ""})
+
+        self.assertContains(response, "First article")
+        self.assertContains(response, "Second article")
+
+    def test_search_paginates_results(self):
+        for index in range(7):
+            self._create_post(title=f"Matching {index}", content="match")
+
+        response = self.client.get(reverse("search"), {"q": "Matching"})
+
+        self.assertEqual(len(response.context["page_obj"]), 6)
+        self.assertTrue(response.context["page_obj"].has_next())
+
+    def test_search_links_to_post_detail(self):
+        post = self._create_post(title="Linked post")
+
+        response = self.client.get(reverse("search"), {"q": "Linked"})
+
+        self.assertContains(response, post.get_absolute_url())
+
+
+class PostUrlTests(TestCase):
+    """Tests for the canonical post URL."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username="author",
+            password="test-pass-123",
+        )
+
+    def test_get_absolute_url_uses_post_detail_route(self):
+        post = Post.objects.create(
+            title="Hello World",
+            content="Body",
+            author=self.user,
+            status=Post.Status.PUBLISHED,
+        )
+
+        self.assertEqual(post.get_absolute_url(), f"/posts/{post.slug}/")

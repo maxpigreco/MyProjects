@@ -10,8 +10,8 @@ avanzamento sono in [`PLAN.md`](PLAN.md).
 
 ## Stato attuale
 
-- Fase 1 in corso: WP1–WP4 completati, WP5–WP7 da fare.
-- Test automatici: 25 test verdi (`blog` e `accounts`).
+- Fase 1 in corso: WP1–WP5 completati, WP6–WP7 da fare.
+- Test automatici: 38 test verdi (`blog` e `accounts`).
 - Database locale SQLite con dati demo; non viene versionato.
 
 ## Requisiti di sistema

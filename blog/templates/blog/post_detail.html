@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | My Site{% endblock %}
+
+{% block content %}
+<article class="py-4">
+    <header class="mb-4 pb-3 border-bottom">
+        <h1 class="display-5 mb-3">{{ post.title }}</h1>
+        <p class="text-muted mb-0">
+            By {{ post.author_name|default:post.author.username }}
+            &middot;
+            <time datetime="{{ post.published_at|date:'c' }}">{{ post.published_at|date:"M j, Y" }}</time>
+        </p>
+    </header>
+
+    <div class="mb-4">{{ post.content|linebreaks }}</div>
+
+    <footer class="d-flex justify-content-between align-items-center text-muted small border-top pt-3">
+        <span>{{ post.views }} view{{ post.views|pluralize }}</span>
+        <a href="{% url 'index' %}">&larr; Back to all posts</a>
+    </footer>
+</article>
+{% endblock %}
+
+{% block footer %}
+<footer class="bg-light py-3 mt-5 border-top">
+    <div class="container text-center">
+        <span class="text-muted">Created for the course. Special thanks to <a href="https://academy.zenva.com/" target="_blank">Zenva Academy</a> for their amazing coding tutorials!</span>
+    </div>
+</footer>
+{% endblock %}

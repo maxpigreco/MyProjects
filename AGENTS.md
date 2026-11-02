@@ -35,9 +35,9 @@ python manage.py test blog.tests.ClassName.test_name  # single test
 python manage.py createsuperuser
 ```
 
-`blog/tests.py` covers the `Post` model and admin plus contact messages;
-`accounts/tests.py` covers profiles, signup and password reset (25 tests
-total).
+`blog/tests.py` covers the `Post` model and admin, the public home/detail/search
+views and contact messages; `accounts/tests.py` covers profiles, signup and
+password reset (38 tests total).
 
 ## Conventions and gotchas
 
@@ -46,11 +46,12 @@ total).
   `CONTACT_EMAIL` comes from env with a `contact@example.com` default.
 - Root `templates/base.html` (Bootstrap 5 via CDN) is the shared layout. App
   templates live under `<app>/templates/<app>/`.
-- URL names are global (no namespaces): refer to `index`, `login`, `signup`,
-  `logout`, `dashboard`, `profile`, `edit_profile`, `contact`, `search`, and
-  `password_reset`, `password_reset_done`, `password_reset_confirm`,
-  `password_reset_complete`. Reset templates live in `templates/registration/`.
-  `LOGIN_URL = "login"` and `LOGIN_REDIRECT_URL = "dashboard"`.
+- URL names are global (no namespaces): refer to `index`, `post_detail`,
+  `login`, `signup`, `logout`, `dashboard`, `profile`, `edit_profile`,
+  `contact`, `search`, and `password_reset`, `password_reset_done`,
+  `password_reset_confirm`, `password_reset_complete`. Reset templates live in
+  `templates/registration/`. `LOGIN_URL = "login"` and
+  `LOGIN_REDIRECT_URL = "dashboard"`.
 - `accounts.Profile` is ensured by a `post_save` signal on `User`
   (`get_or_create`, so existing bios are never overwritten).
   Views touching `request.user.profile` must be login-protected
@@ -59,15 +60,21 @@ total).
   suffixes) and sets `published_at` on first publication. The admin keeps
   `slug` read-only, so changing a title keeps the URL and duplicate titles are
   allowed.
-- `blog.views.search_view` queries all `Post` rows without filtering
-  `status="published"`.
-- `Post.get_absolute_url()` targets `post_detail`, added in WP5; until then the
-  admin uses `view_on_site = False`.
+- Public views (`index_view`, `post_detail_view`, `search_view`) filter
+  `status="published"` and use `select_related("author")`; all paginate at
+  `POSTS_PER_PAGE = 6`. Drafts 404 on the detail URL.
+- `post_detail_view` increments `views` with `F("views") + 1` and refreshes the
+  field before rendering. The author shows `author_name` with a fallback to
+  `author.username`.
+- `Post.get_absolute_url()` targets `post_detail`; the admin uses
+  `view_on_site = True`.
+- Post cards and pagination are shared partials:
+  `blog/templates/blog/_post_card.html` and `_pagination.html`.
 - Contact submissions are stored in `blog.ContactMessage` and emailed to
   `CONTACT_EMAIL` (console backend in dev). The hidden `website` field is a
   honeypot: when filled, the view redirects to thanks without saving or
   sending. Email errors are logged and never lose the stored message.
 - `ContactMessageAdmin` keeps the message content read-only; only `is_read` is
   editable.
-- `accounts/templates/accounts/logout.html` is unused: logout uses a
-  `LogoutView` subclass that redirects to the `login` URL.
+- Logout uses a `LogoutView` subclass that redirects to the `login` URL; there
+  is no logout template.

@@ -7,6 +7,7 @@ urlpatterns = [
     path("thanks/", TemplateView.as_view(
         template_name="blog/thanks.html"), name="contact_thanks"),
     path("search/", views.search_view, name="search"),
+    path("posts/<slug:slug>/", views.post_detail_view, name="post_detail"),
     path("dashboard/", views.dashboard_view, name="dashboard"),
     path('', views.index_view, name="index"),
 ]
