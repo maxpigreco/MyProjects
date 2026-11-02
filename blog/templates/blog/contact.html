@@ -9,17 +9,24 @@
     {% csrf_token %}
 
     {% for field in form %}
-        <div class="mb-3">
-            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-            {{ field }}
+        {% if field.name != "website" %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
 
-            {% if field.help_text %} <div class="form-text">{{ field.help_text }}</div> {% endif %}
+                {% if field.help_text %} <div class="form-text">{{ field.help_text }}</div> {% endif %}
 
-            {% for error in field.errors %}
-                <div class="text-danger small">{{ error }}</div>
-            {% endfor %}
-        </div>
+                {% for error in field.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endfor %}
+
+    {# Honeypot: hidden from people, visible to naive bots. #}
+    <div class="d-none" aria-hidden="true">
+        {{ form.website }}
+    </div>
 
     <button type="submit" class="btn btn-primary">Send</button>
 </form>

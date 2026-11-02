@@ -1,10 +1,14 @@
+from unittest.mock import patch
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.db import IntegrityError, transaction
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
 
 from .admin import PostAdmin
-from .models import Post
+from .models import ContactMessage, Post
 
 
 class PostModelTests(TestCase):
@@ -131,3 +135,106 @@ class PostAdminTests(TestCase):
         saved = form.save()
 
         self.assertEqual(saved.slug, "original-title")
+
+
+class ContactMessageModelTests(TestCase):
+    """Tests for the contact message model."""
+
+    def test_string_representation_and_defaults(self):
+        message = ContactMessage.objects.create(
+            name="Alice",
+            email="alice@example.com",
+            message="Hello there",
+        )
+
+        self.assertEqual(str(message), "Alice <alice@example.com>")
+        self.assertFalse(message.is_read)
+
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    CONTACT_EMAIL="contact@example.com",
+)
+class ContactViewTests(TestCase):
+    """Tests for the public contact form."""
+
+    def _valid_data(self, **overrides):
+        data = {
+            "name": "Alice",
+            "email": "alice@example.com",
+            "message": "A" * 60,
+        }
+        data.update(overrides)
+        return data
+
+    def test_valid_submission_saves_and_emails(self):
+        response = self.client.post(
+            reverse("contact"),
+            self._valid_data(),
+        )
+
+        self.assertRedirects(response, reverse("contact_thanks"))
+        message = ContactMessage.objects.get()
+        self.assertEqual(message.name, "Alice")
+        self.assertEqual(message.email, "alice@example.com")
+        self.assertEqual(message.message, "A" * 60)
+        self.assertFalse(message.is_read)
+
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to, ["contact@example.com"])
+        self.assertEqual(email.reply_to, ["alice@example.com"])
+        self.assertIn("Alice", email.subject)
+        self.assertIn("alice@example.com", email.body)
+        self.assertIn("A" * 60, email.body)
+
+    def test_honeypot_submission_is_ignored(self):
+        response = self.client.post(
+            reverse("contact"),
+            self._valid_data(website="http://spam.example"),
+        )
+
+        self.assertRedirects(response, reverse("contact_thanks"))
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_short_message_is_rejected_without_side_effects(self):
+        response = self.client.post(
+            reverse("contact"),
+            self._valid_data(message="too short"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("message", response.context["form"].errors)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_authenticated_user_gets_name_prefilled(self):
+        user = get_user_model().objects.create_user(
+            username="profileuser",
+            password="test-pass-123",
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("contact"))
+
+        self.assertEqual(
+            response.context["form"]["name"].value(),
+            "profileuser",
+        )
+
+    @patch("blog.views.EmailMessage.send", side_effect=Exception("SMTP down"))
+    def test_email_failure_keeps_the_message(self, mock_send):
+        with self.assertLogs("blog.views", level="ERROR") as logs:
+            response = self.client.post(
+                reverse("contact"),
+                self._valid_data(),
+            )
+
+        self.assertRedirects(response, reverse("contact_thanks"))
+        self.assertEqual(ContactMessage.objects.count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIn(
+            "Failed to send contact notification",
+            logs.output[0],
+        )

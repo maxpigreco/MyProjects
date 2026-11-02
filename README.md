@@ -10,8 +10,8 @@ avanzamento sono in [`PLAN.md`](PLAN.md).
 
 ## Stato attuale
 
-- Fase 1 in corso: WP1–WP3 completati, WP4–WP7 da fare.
-- Test automatici: 19 test verdi (`blog` e `accounts`).
+- Fase 1 in corso: WP1–WP4 completati, WP5–WP7 da fare.
+- Test automatici: 25 test verdi (`blog` e `accounts`).
 - Database locale SQLite con dati demo; non viene versionato.
 
 ## Requisiti di sistema
@@ -109,6 +109,7 @@ hanno la precedenza sul file.
 | Variabile | Obbligatoria | Descrizione |
 |---|---|---|
 | `DJANGO_SECRET_KEY` | Sì | Chiave segreta Django. Se manca, l'avvio fallisce con `ImproperlyConfigured`. |
+| `CONTACT_EMAIL` | No | Destinatario delle email del form contatti (default `contact@example.com`). |
 
 Note sull'ambiente di sviluppo:
 

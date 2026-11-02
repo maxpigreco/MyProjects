@@ -35,13 +35,15 @@ python manage.py test blog.tests.ClassName.test_name  # single test
 python manage.py createsuperuser
 ```
 
-`blog/tests.py` covers the `Post` model and admin; `accounts/tests.py` covers
-profiles, signup and password reset (19 tests total).
+`blog/tests.py` covers the `Post` model and admin plus contact messages;
+`accounts/tests.py` covers profiles, signup and password reset (25 tests
+total).
 
 ## Conventions and gotchas
 
 - `MyProjects/settings.py` is development-only: `DEBUG = True`, `SECRET_KEY`
   from `.env`, SQLite, empty `ALLOWED_HOSTS`, console email backend.
+  `CONTACT_EMAIL` comes from env with a `contact@example.com` default.
 - Root `templates/base.html` (Bootstrap 5 via CDN) is the shared layout. App
   templates live under `<app>/templates/<app>/`.
 - URL names are global (no namespaces): refer to `index`, `login`, `signup`,
@@ -61,5 +63,11 @@ profiles, signup and password reset (19 tests total).
   `status="published"`.
 - `Post.get_absolute_url()` targets `post_detail`, added in WP5; until then the
   admin uses `view_on_site = False`.
+- Contact submissions are stored in `blog.ContactMessage` and emailed to
+  `CONTACT_EMAIL` (console backend in dev). The hidden `website` field is a
+  honeypot: when filled, the view redirects to thanks without saving or
+  sending. Email errors are logged and never lose the stored message.
+- `ContactMessageAdmin` keeps the message content read-only; only `is_read` is
+  editable.
 - `accounts/templates/accounts/logout.html` is unused: logout uses a
   `LogoutView` subclass that redirects to the `login` URL.

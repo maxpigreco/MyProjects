@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.5 — 2026-11-02.
+**Documento canonico di pianificazione e tracking.** Versione 1.6 — 2026-11-02.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -46,12 +46,12 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 19 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
+| 25 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
 | `README.md` documenta progetto, requisiti di sistema e setup | file su disco |
-| Implementazione: WP1–WP3 completati; WP4–WP7 da fare | verifica 2026-11-02 |
+| Implementazione: WP1–WP4 completati; WP5–WP7 da fare | verifica 2026-11-02 |
 
 **Comandi base** (con venv attiva):
 
@@ -70,13 +70,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[~]` | 3/7 WP · 17/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[~]` | 4/7 WP · 21/33 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** WP1–WP3 completati; si prosegue con WP4 dopo verifica.
+**Stato attuale:** WP1–WP4 completati; si prosegue con WP5 dopo verifica.
 
 ---
 
@@ -117,7 +117,7 @@ La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 - [ ] `python manage.py test` verde, con assert sui flussi critici.
 - [x] Nessun 500 su modifica profilo: né anonimo né utenti senza profilo.
 - [ ] Bozze invisibili da home, ricerca e URL diretto.
-- [ ] Contatto salvato nel DB + email in console + honeypot funzionante.
+- [x] Contatto salvato nel DB + email in console + honeypot funzionante.
 - [x] Reset password completo funzionante.
 - [x] Titoli duplicati non causano 500.
 - [x] `git ls-files` non include `db.sqlite3` né `.env`.
@@ -184,12 +184,12 @@ flusso reset completo verde nei test.
 ### WP4 — Contatti
 
 **Obiettivo:** nessun messaggio perso e antispam minimo.
-**Dipendenze:** WP1. Indipendente da WP2/WP3.
+**Dipendenze:** WP1. Indipendente da WP2/WP3. **Stato:** `[x]`
 
-- [ ] Creare `ContactMessage` (nome, email, messaggio, creato il, letto) + migrazione + admin.
-- [ ] `contact_view`: salva, invia email a `CONTACT_EMAIL` con mittente `DEFAULT_FROM_EMAIL`, redirect a `contact_thanks`.
-- [ ] Aggiungere honeypot (`website` nascosto): se compilato, redirect a thanks senza salvare/inviare.
-- [ ] Test: persistenza, email in outbox, honeypot ignorato, validazione `min_length`.
+- [x] Creare `ContactMessage` (nome, email, messaggio, creato il, letto) + migrazione + admin.
+- [x] `contact_view`: salva, invia email a `CONTACT_EMAIL` con mittente `DEFAULT_FROM_EMAIL`, redirect a `contact_thanks`.
+- [x] Aggiungere honeypot (`website` nascosto): se compilato, redirect a thanks senza salvare/inviare.
+- [x] Test: persistenza, email in outbox, honeypot ignorato, validazione `min_length`.
 
 **Accettazione:** contatto valido → record + email; bot → nessun record;
 form invalido → nessun effetto collaterale.
@@ -337,6 +337,7 @@ changelog aggiornato.
 | 2026-11-02 | 1.3 | Revisione piano: corretta la decisione sul post "Draft", registrati `author_name`/slug/`published_at`, chiuso il rischio `.env`, chiariti email, `post_detail` e fixture; admin con slug read-only (10 test). |
 | 2026-11-02 | 1.4 | WP3 completato: segnale profilo idempotente, migrazione `accounts/0002`, view protetta con messaggio, email console, reset password con 4 URL e 6 template, 9 test (19 totali); migrazione verificata su copia e applicata. |
 | 2026-11-02 | 1.5 | `README.md` riscritto con descrizione, requisiti di sistema, setup e configurazione; `AGENTS.md` allineato. |
+| 2026-11-02 | 1.6 | WP4 completato: `ContactMessage` + migrazione + admin, salvataggio con email a `CONTACT_EMAIL`, honeypot silenzioso, logging degli errori, 6 test contatti (25 totali); migrazione verificata su copia e applicata. |
 
 ---
 

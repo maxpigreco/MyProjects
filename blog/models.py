@@ -69,3 +69,20 @@ class Post(models.Model):
             candidate = f"{base}-{suffix}"
             suffix += 1
         return candidate
+
+
+class ContactMessage(models.Model):
+    """A message submitted through the public contact form."""
+
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name_plural = "Contact messages"
+
+    def __str__(self) -> str:
+        return f"{self.name} <{self.email}>"

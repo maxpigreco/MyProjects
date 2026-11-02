@@ -55,6 +55,7 @@ LOGIN_REDIRECT_URL = "dashboard"  # after successful login
 # Development email: print messages (password reset, contact form) to console.
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "noreply@example.com"
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "contact@example.com")
 
 
 # Application definition
