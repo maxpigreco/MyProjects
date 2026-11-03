@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.8 — 2026-11-02.
+**Documento canonico di pianificazione e tracking.** Versione 1.9 — 2026-11-03.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -46,12 +46,12 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 44 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
+| 46 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
 | `README.md` documenta progetto, requisiti di sistema e setup | file su disco |
-| Implementazione: WP1–WP6 completati; WP7 da fare | verifica 2026-11-02 |
+| Implementazione: Fase 1 completata (WP1–WP7) | verifica 2026-11-03 |
 
 **Comandi base** (con venv attiva):
 
@@ -70,13 +70,13 @@ python manage.py runserver
 
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
-| **1. Fondamenta + blog leggibile** | `[~]` | 6/7 WP · 30/33 task | — |
+| **1. Fondamenta + blog leggibile** | `[x]` | 7/7 WP · 34/34 task | — |
 | **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** WP1–WP6 completati; si prosegue con WP7 dopo verifica.
+**Stato attuale:** Fase 1 completata (WP1–WP7). Prossimo passo: Fase 2 — Account e dashboard.
 
 ---
 
@@ -112,17 +112,17 @@ con un loader stdlib; nessuna dipendenza aggiuntiva. `.env` resta gitignored e
 
 La Fase 1 è chiusa solo se tutte le condizioni sono vere:
 
-- [ ] `python manage.py check` senza errori.
-- [ ] `python manage.py makemigrations --check --dry-run` → “No changes detected”.
-- [ ] `python manage.py test` verde, con assert sui flussi critici.
+- [x] `python manage.py check` senza errori.
+- [x] `python manage.py makemigrations --check --dry-run` → “No changes detected”.
+- [x] `python manage.py test` verde, con assert sui flussi critici.
 - [x] Nessun 500 su modifica profilo: né anonimo né utenti senza profilo.
 - [x] Bozze invisibili da home, ricerca e URL diretto.
 - [x] Contatto salvato nel DB + email in console + honeypot funzionante.
 - [x] Reset password completo funzionante.
 - [x] Titoli duplicati non causano 500.
 - [x] `git ls-files` non include `db.sqlite3` né `.env`.
-- [ ] Un clone pulito si avvia e si popola con `seed_demo`.
-- [ ] `README.md` con progetto, requisiti di sistema e setup; `AGENTS.md` allineato.
+- [x] Un clone pulito si avvia e si popola con `seed_demo`.
+- [x] `README.md` con progetto, requisiti di sistema e setup; `AGENTS.md` allineato.
 
 ---
 
@@ -224,12 +224,12 @@ non crea duplicati.
 ### WP7 — Verifica finale
 
 **Obiettivo:** chiudere la fase con prove eseguibili.
-**Dipendenze:** WP1–WP6.
+**Dipendenze:** WP1–WP6. **Stato:** `[x]`
 
-- [ ] Eseguire `check`, `makemigrations --check --dry-run` e `manage.py test`; tutto verde.
-- [ ] Smoke manuale: home, dettaglio, ricerca, contatti, signup, reset password, modifica profilo, 404 draft.
-- [ ] Verificare `git ls-files` e assenza di segreti; controllare `git status`.
-- [ ] Verificare e aggiornare `README.md` e `AGENTS.md` con setup, comandi e stato del progetto a fine fase.
+- [x] Eseguire `check`, `makemigrations --check --dry-run` e `manage.py test`; tutto verde.
+- [x] Smoke manuale: home, dettaglio, ricerca, contatti, signup, reset password, modifica profilo, 404 draft.
+- [x] Verificare `git ls-files` e assenza di segreti; controllare `git status`.
+- [x] Verificare e aggiornare `README.md` e `AGENTS.md` con setup, comandi e stato del progetto a fine fase.
 
 **Accettazione:** tutti i criteri della sezione 5 soddisfatti e registrati nel
 changelog.
@@ -340,6 +340,7 @@ changelog aggiornato.
 | 2026-11-02 | 1.6 | WP4 completato: `ContactMessage` + migrazione + admin, salvataggio con email a `CONTACT_EMAIL`, honeypot silenzioso, logging degli errori, 6 test contatti (25 totali); migrazione verificata su copia e applicata. |
 | 2026-11-02 | 1.7 | WP5 completato: home con post pubblicati e paginazione, dettaglio `/posts/<slug>/` con contatore viste, ricerca filtrata, partial card/paginazione, navbar responsive, `logout.html` rimosso; 13 test (38 totali). |
 | 2026-11-02 | 1.8 | WP6 completato: comando `seed_demo` idempotente (utente `user` inutilizzabile, profilo, 5 pubblicati + 1 draft, riallineamento per slug), fixture sanificata `blog/fixtures/demo.json`, 6 test (44 totali); verificato anche il caricamento su DB vuoto. |
+| 2026-11-03 | 1.9 | Fase 1 completata. WP7: check/migrazioni/test verdi, smoke 16/16 su DB temporaneo pulito (incluso `seed_demo`), audit `git ls-files`/segreti, docs finali. Corretto il logout GET (Django 5.2 non disconnetteva) con 2 test di regressione (46 totali). |
 
 ---
 

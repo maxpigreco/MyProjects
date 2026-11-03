@@ -177,3 +177,34 @@ class PasswordResetFlowTests(TestCase):
 
         self.assertRedirects(response, reverse("password_reset_done"))
         self.assertEqual(len(mail.outbox), 0)
+
+
+class LogoutTests(TestCase):
+    """Tests for the GET- and POST-compatible logout view."""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="logoutuser",
+            password="test-pass-123",
+        )
+
+    def _assert_logged_out(self):
+        response = self.client.get(reverse("dashboard"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("login"), response["Location"])
+
+    def test_get_logout_logs_out_and_redirects(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("logout"))
+
+        self.assertRedirects(response, reverse("login"))
+        self._assert_logged_out()
+
+    def test_post_logout_logs_out_and_redirects(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse("logout"))
+
+        self.assertRedirects(response, reverse("login"))
+        self._assert_logged_out()

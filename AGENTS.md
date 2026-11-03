@@ -38,7 +38,7 @@ python manage.py createsuperuser
 
 `blog/tests.py` covers the `Post` model and admin, the public home/detail/search
 views, contact messages and the `seed_demo` command; `accounts/tests.py` covers
-profiles, signup and password reset (44 tests total).
+profiles, signup and password reset (46 tests total).
 
 ## Conventions and gotchas
 
@@ -81,5 +81,7 @@ profiles, signup and password reset (44 tests total).
   sending. Email errors are logged and never lose the stored message.
 - `ContactMessageAdmin` keeps the message content read-only; only `is_read` is
   editable.
-- Logout uses a `LogoutView` subclass that redirects to the `login` URL; there
-  is no logout template.
+- Logout uses a `LogoutView` subclass (`LogoutAllowGetView`) that supports
+  both GET and POST and redirects to the `login` URL; there is no logout
+  template. Django 5.x only logs out on POST by default, so the override calls
+  `auth_logout()` explicitly.
