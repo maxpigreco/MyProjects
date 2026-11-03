@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import Count, F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ContactForm, SearchForm
@@ -32,7 +32,30 @@ def index_view(request):
 
 @login_required
 def dashboard_view(request):
-    return render(request, "blog/dashboard.html")
+    """Show the signed-in user's summary and their own posts."""
+    posts = Post.objects.filter(
+        author=request.user
+    ).select_related("author")
+    stats = posts.aggregate(
+        total=Count("pk"),
+        published=Count(
+            "pk",
+            filter=Q(status=Post.Status.PUBLISHED),
+        ),
+        drafts=Count(
+            "pk",
+            filter=Q(status=Post.Status.DRAFT),
+        ),
+    )
+
+    return render(
+        request,
+        "blog/dashboard.html",
+        {
+            "page_obj": _paginate(request, posts),
+            "stats": stats,
+        },
+    )
 
 def contact_view(request):
     if request.method == "POST":

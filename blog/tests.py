@@ -466,3 +466,127 @@ class SeedDemoCommandTests(TestCase):
         self.assertNotIn("pbkdf2_", fixture)
         self.assertNotIn("argon2", fixture)
         self.assertIn('"password": "!"', fixture)
+
+
+class DashboardViewTests(TestCase):
+    """Tests for the authenticated user dashboard."""
+
+    @classmethod
+    def setUpTestData(cls):
+        user_model = get_user_model()
+        cls.owner = user_model.objects.create_user(
+            username="owner",
+            email="owner@example.com",
+            password="test-pass-123",
+        )
+        cls.other = user_model.objects.create_user(
+            username="other",
+            password="test-pass-123",
+        )
+        cls.published_one = Post.objects.create(
+            title="Owner published one",
+            content="Body",
+            author=cls.owner,
+            status=Post.Status.PUBLISHED,
+        )
+        cls.published_two = Post.objects.create(
+            title="Owner published two",
+            content="Body",
+            author=cls.owner,
+            status=Post.Status.PUBLISHED,
+        )
+        cls.owner_draft = Post.objects.create(
+            title="Owner draft",
+            content="Body",
+            author=cls.owner,
+            status=Post.Status.DRAFT,
+        )
+        cls.other_post = Post.objects.create(
+            title="Other user post",
+            content="Body",
+            author=cls.other,
+            status=Post.Status.PUBLISHED,
+        )
+
+    def _login_owner(self):
+        self.client.force_login(self.owner)
+
+    def test_anonymous_user_is_redirected_to_login(self):
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('dashboard')}",
+        )
+
+    def test_shows_only_the_users_own_posts(self):
+        self._login_owner()
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Owner published one")
+        self.assertContains(response, "Owner draft")
+        self.assertNotContains(response, "Other user post")
+        self.assertEqual(len(response.context["page_obj"]), 3)
+
+    def test_shows_account_summary(self):
+        self._login_owner()
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertContains(response, "owner@example.com")
+        self.assertContains(response, "owner")
+        self.assertContains(response, "Member since")
+
+    def test_stats_count_total_published_and_drafts(self):
+        self._login_owner()
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertEqual(
+            response.context["stats"],
+            {"total": 3, "published": 2, "drafts": 1},
+        )
+
+    def test_draft_has_badge_and_no_public_link(self):
+        self._login_owner()
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertContains(response, "Owner draft")
+        self.assertContains(response, "Draft")
+        self.assertNotContains(
+            response,
+            self.owner_draft.get_absolute_url(),
+        )
+        self.assertContains(
+            response,
+            self.published_one.get_absolute_url(),
+        )
+
+    def test_paginates_six_posts_per_page(self):
+        for index in range(5):
+            Post.objects.create(
+                title=f"Extra owner post {index}",
+                content="Body",
+                author=self.owner,
+                status=Post.Status.PUBLISHED,
+            )
+        self._login_owner()
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertEqual(len(response.context["page_obj"]), 6)
+        self.assertTrue(response.context["page_obj"].has_next())
+
+    def test_empty_state_for_user_without_posts(self):
+        empty_user = get_user_model().objects.create_user(
+            username="empty",
+            password="test-pass-123",
+        )
+        self.client.force_login(empty_user)
+
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertContains(response, "You have no posts yet.")

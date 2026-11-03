@@ -1,6 +1,6 @@
 # PLAN.md — MyProjects
 
-**Documento canonico di pianificazione e tracking.** Versione 1.9 — 2026-11-03.
+**Documento canonico di pianificazione e tracking.** Versione 2.0 — 2026-11-03.
 Percorso canonico: `/home/max/projects/MyProjects/PLAN.md`.
 
 Questo file è l'unica fonte di verità per pianificazione, stato e avanzamento
@@ -46,12 +46,12 @@ Stack: Django 5.2.3, Python 3.12 (`.venv`), SQLite.
 | Nessuna pagina di dettaglio post; `/` è una landing di link | `blog/urls.py`, `index.html` |
 | Ricerca con link `href="#"` e senza filtro sui post privati | `blog/views.py`, `search.html` |
 | `Post.views` mai incrementato | `blog/views.py` |
-| 46 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
+| 57 test (blog + accounts); `check --deploy` con 6 warning attesi in locale | `manage.py test`, `check --deploy` |
 | `/accounts/profile/edit/` anonimo → 500 confermato | smoke test HTTP |
 | `db.sqlite3`, `.env` e `*.bak` non tracciati; `SECRET_KEY` da env | `git ls-files`, `settings.py` |
 | Repo git su `main`, commit WP1–WP2 inclusi | `git log` |
 | `README.md` documenta progetto, requisiti di sistema e setup | file su disco |
-| Implementazione: Fase 1 completata (WP1–WP7) | verifica 2026-11-03 |
+| Implementazione: Fase 1 e Fase 2 completate | verifica 2026-11-03 |
 
 **Comandi base** (con venv attiva):
 
@@ -71,12 +71,12 @@ python manage.py runserver
 | Fase | Stato | Avanzamento | Dipende da |
 |---|---|---|---|
 | **1. Fondamenta + blog leggibile** | `[x]` | 7/7 WP · 34/34 task | — |
-| **2. Account e dashboard** | `[ ]` | 0/4 obiettivi | Fase 1 |
+| **2. Account e dashboard** | `[x]` | 4/4 obiettivi | Fase 1 |
 | **3. Workflow editoriale** | `[ ]` | 0/4 obiettivi | Fase 2 |
 | **4. Robustezza e delivery** (condizionale) | `[-]` | 0/4 obiettivi | Fase 3 + cambio target |
 | **5. Hardening** (opzionale) | `[-]` | 0/4 obiettivi | Fase 4 |
 
-**Stato attuale:** Fase 1 completata (WP1–WP7). Prossimo passo: Fase 2 — Account e dashboard.
+**Stato attuale:** Fase 1 e Fase 2 completate. Prossimo passo: Fase 3 — Workflow editoriale.
 
 ---
 
@@ -241,14 +241,14 @@ changelog.
 > Queste fasi non sono in scope finché la Fase 1 non è `[x]`. Le stime sono
 > indicative e vanno riviste all'apertura della fase.
 
-### Fase 2 — Account e dashboard — `[ ]`
+### Fase 2 — Account e dashboard — `[x]`
 
 **Obiettivo:** dare valore all'area autenticata.
 
-- [ ] Dashboard con dati utente e “My posts” basata sulla FK autore.
-- [ ] Rifiniture signup e profilo (feedback, validazioni, stato vuoto).
-- [ ] Test dei flussi account e della dashboard.
-- [ ] Aggiornare documentazione e changelog.
+- [x] Dashboard con dati utente e “My posts” basata sulla FK autore.
+- [x] Rifiniture signup e profilo (feedback, validazioni, stato vuoto).
+- [x] Test dei flussi account e della dashboard.
+- [x] Aggiornare documentazione e changelog.
 
 **Accettazione:** un utente vede i propri dati e i propri post senza admin.
 
@@ -341,6 +341,7 @@ changelog aggiornato.
 | 2026-11-02 | 1.7 | WP5 completato: home con post pubblicati e paginazione, dettaglio `/posts/<slug>/` con contatore viste, ricerca filtrata, partial card/paginazione, navbar responsive, `logout.html` rimosso; 13 test (38 totali). |
 | 2026-11-02 | 1.8 | WP6 completato: comando `seed_demo` idempotente (utente `user` inutilizzabile, profilo, 5 pubblicati + 1 draft, riallineamento per slug), fixture sanificata `blog/fixtures/demo.json`, 6 test (44 totali); verificato anche il caricamento su DB vuoto. |
 | 2026-11-03 | 1.9 | Fase 1 completata. WP7: check/migrazioni/test verdi, smoke 16/16 su DB temporaneo pulito (incluso `seed_demo`), audit `git ls-files`/segreti, docs finali. Corretto il logout GET (Django 5.2 non disconnetteva) con 2 test di regressione (46 totali). |
+| 2026-11-03 | 2.0 | Fase 2 completata: dashboard con riepilogo, statistiche, “My posts” (draft inclusi con badge, 6/pagina) e stato vuoto; profilo con email, data iscrizione, bio e conteggio post; signup e modifica profilo con rendering Bootstrap e feedback errori; 11 test (57 totali). |
 
 ---
 

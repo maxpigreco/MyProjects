@@ -23,7 +23,15 @@ def edit_profile_view(request):
 
 @login_required
 def profile_view(request):
-    return render(request, "accounts/profile.html")
+    """Show the signed-in user's account details and profile bio."""
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    post_count = request.user.posts.count()
+
+    return render(
+        request,
+        "accounts/profile.html",
+        {"profile": profile, "post_count": post_count},
+    )
 
 def signup_view(request):
     if request.method == "POST":

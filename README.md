@@ -10,8 +10,8 @@ avanzamento sono in [`PLAN.md`](PLAN.md).
 
 ## Stato attuale
 
-- Fase 1 completata: WP1–WP7.
-- Test automatici: 46 test verdi (`blog` e `accounts`).
+- Fase 2 completata: dashboard con “My posts”, profilo arricchito e signup rifinito.
+- Test automatici: 57 test verdi (`blog` e `accounts`).
 - Database locale SQLite con dati demo; non viene versionato.
 
 ## Requisiti di sistema
@@ -188,6 +188,6 @@ python manage.py test
 ```
 
 I test coprono il modello `Post` e il relativo admin, la creazione dei profili,
-il signup, la modifica del profilo, il flusso completo di reset password, le
-viste pubbliche del blog, i contatti e il comando `seed_demo` (inclusa la
-fixture).
+il signup, la dashboard con “My posts”, il profilo, la modifica del profilo, il
+flusso completo di reset password, le viste pubbliche del blog, i contatti e il
+comando `seed_demo` (inclusa la fixture).

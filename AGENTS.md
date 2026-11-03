@@ -1,7 +1,7 @@
 # AGENTS.md
 
-Django 5.2.3 demo site: user auth, profiles, contact form, and post search.
-Settings package is `MyProjects/`; apps are `blog` (mounted at `/`) and
+Django 5.2.3 demo site: user auth, profiles, dashboard, contact form, and post
+search. Settings package is `MyProjects/`; apps are `blog` (mounted at `/`) and
 `accounts` (mounted at `/accounts/`).
 
 Planning and progress: `PLAN.md` is the single source of truth for roadmap,
@@ -37,8 +37,9 @@ python manage.py createsuperuser
 ```
 
 `blog/tests.py` covers the `Post` model and admin, the public home/detail/search
-views, contact messages and the `seed_demo` command; `accounts/tests.py` covers
-profiles, signup and password reset (46 tests total).
+views, contact messages, the dashboard and the `seed_demo` command;
+`accounts/tests.py` covers profiles, signup, password reset and logout (57 tests
+total).
 
 ## Conventions and gotchas
 
@@ -69,6 +70,13 @@ profiles, signup and password reset (46 tests total).
   `author.username`.
 - `Post.get_absolute_url()` targets `post_detail`; the admin uses
   `view_on_site = True`.
+- `dashboard_view` filters `Post` by `author=request.user`, includes drafts
+  (with a badge and no public link), shows total/published/draft counts and
+  paginates 6 per page. `profile_view` shows email, join date, bio (or
+  “No bio yet.”) and the user's post count.
+- `accounts.forms.BootstrapFormMixin` adds `form-control` to widgets; signup and
+  profile edit render fields through
+  `accounts/templates/accounts/_form_field.html`.
 - Post cards and pagination are shared partials:
   `blog/templates/blog/_post_card.html` and `_pagination.html`.
 - `seed_demo` creates or refreshes the demo user `user` (unusable password,

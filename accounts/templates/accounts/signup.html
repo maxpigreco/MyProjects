@@ -2,9 +2,14 @@
 
 {% block content %}
 <h1>Sign Up</h1>
-<form method="post">
+
+<form method="post" class="col-lg-6">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    {% for field in form %}
+        {% include "accounts/_form_field.html" %}
+    {% endfor %}
+
     <button class="btn btn-primary">Register</button>
 </form>
 {% endblock %}

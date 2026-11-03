@@ -208,3 +208,74 @@ class LogoutTests(TestCase):
 
         self.assertRedirects(response, reverse("login"))
         self._assert_logged_out()
+
+
+class ProfileViewTests(TestCase):
+    """Tests for the profile summary page."""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="profileviewer",
+            email="profileviewer@example.com",
+            password="test-pass-123",
+        )
+        self.user.profile.bio = "I write about Django."
+        self.user.profile.save()
+
+    def test_anonymous_user_is_redirected_to_login(self):
+        response = self.client.get(reverse("profile"))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('profile')}",
+        )
+
+    def test_shows_account_details_bio_and_post_count(self):
+        from blog.models import Post
+
+        Post.objects.create(
+            title="A post",
+            content="Body",
+            author=self.user,
+            status=Post.Status.PUBLISHED,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("profile"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "profileviewer@example.com")
+        self.assertContains(response, "I write about Django.")
+        self.assertContains(response, "Member since")
+        self.assertContains(response, "1")
+
+    def test_empty_bio_shows_a_placeholder(self):
+        self.user.profile.bio = ""
+        self.user.profile.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("profile"))
+
+        self.assertContains(response, "No bio yet.")
+
+
+class SignupValidationTests(TestCase):
+    """Tests for signup form rendering and validation feedback."""
+
+    def test_invalid_signup_shows_errors_and_creates_nothing(self):
+        response = self.client.post(
+            reverse("signup"),
+            {
+                "username": "baduser",
+                "email": "bad@example.com",
+                "password1": "Str0ng-Pass-123",
+                "password2": "Different-Pass-456",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "invalid-feedback")
+        self.assertContains(response, "form-control")
+        self.assertFalse(
+            get_user_model().objects.filter(username="baduser").exists()
+        )

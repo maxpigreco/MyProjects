@@ -1,8 +1,39 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h1>My Profile</h1>
-<p>Welcome, {{ user.username }}!</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">My Profile</h1>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">Dashboard</a>
+</div>
 
-<p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Username</dt>
+            <dd class="col-sm-9">{{ user.username }}</dd>
 
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">{{ user.email|default:"No email set" }}</dd>
+
+            <dt class="col-sm-3">Member since</dt>
+            <dd class="col-sm-9">{{ user.date_joined|date:"M j, Y" }}</dd>
+
+            <dt class="col-sm-3">Posts</dt>
+            <dd class="col-sm-9">{{ post_count }}</dd>
+
+            <dt class="col-sm-3">Bio</dt>
+            <dd class="col-sm-9 mb-0">
+                {% if profile.bio %}
+                    {{ profile.bio|linebreaks }}
+                {% else %}
+                    <span class="text-muted">No bio yet.</span>
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<p class="mt-4 mb-0">
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+</p>
 {% endblock %}

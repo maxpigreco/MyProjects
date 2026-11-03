@@ -1,14 +1,78 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Dashboard</h1>
+    <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm">My profile</a>
+</div>
 
-<p>Welcome, {{ user.username }}</p>
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h2 class="h5">Welcome, {{ user.username }}</h2>
+        <p class="text-muted mb-0">
+            {{ user.email|default:"No email set" }}
+            &middot;
+            Member since {{ user.date_joined|date:"M j, Y" }}
+        </p>
+    </div>
+</div>
 
-<ul>
-    <li><a href="{% url 'profile' %}">My Profile</a></li>
-    <li><a href="{% url 'logout' %}">My Log Out</a></li>
-</ul>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 text-center shadow-sm">
+            <div class="card-body">
+                <div class="display-6">{{ stats.total }}</div>
+                <div class="text-muted text-uppercase small">Total posts</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 text-center shadow-sm">
+            <div class="card-body">
+                <div class="display-6">{{ stats.published }}</div>
+                <div class="text-muted text-uppercase small">Published</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 text-center shadow-sm">
+            <div class="card-body">
+                <div class="display-6">{{ stats.drafts }}</div>
+                <div class="text-muted text-uppercase small">Drafts</div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<h2 class="h4 mb-3">My posts</h2>
 
+<div class="list-group mb-3">
+    {% for post in page_obj %}
+        <div class="list-group-item d-flex justify-content-between align-items-start gap-3">
+            <div>
+                <h3 class="h6 mb-1">
+                    {% if post.status == "published" %}
+                        <a href="{{ post.get_absolute_url }}" class="text-decoration-none">{{ post.title }}</a>
+                    {% else %}
+                        {{ post.title }}
+                    {% endif %}
+                </h3>
+                <p class="text-muted small mb-0">
+                    {% if post.status == "published" %}
+                        Published {{ post.published_at|date:"M j, Y" }}
+                    {% else %}
+                        Created {{ post.created_at|date:"M j, Y" }}
+                    {% endif %}
+                </p>
+            </div>
+            <span class="badge {% if post.status == 'published' %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                {{ post.get_status_display }}
+            </span>
+        </div>
+    {% empty %}
+        <div class="list-group-item text-muted">You have no posts yet.</div>
+    {% endfor %}
+</div>
+
+{% include "blog/_pagination.html" %}
 {% endblock %}
